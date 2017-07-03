@@ -35,8 +35,19 @@ function createScaleY(minY, maxY, height) {
     .range([height, 0]);
 
 }
-const getPath=(lineData,ratio=1)=>{
-  const {height,width}=Dimensions.get('window');
+/**
+ * Create d attribute for an SVG path or ART's Shape.
+ * @param {array} lineData consists array of {timestamp,value}.
+ * @param {number} height height of shape defaults to device Width.
+ * @param {number} width width of shape defaults to device Width.
+ * @param {number} scale to scale y axis points.
+ */
+const getPath=(
+  lineData,
+  height=Dimensions.get('window').width,
+  width=Dimensions.get('window').width,
+  scale=1
+ )=>{
   const lastDatum = lineData[lineData.length - 1];
   const allYValues = lineData.reduce((all, datum) => {
       all.push(parseInt(datum.value));
@@ -45,7 +56,7 @@ const getPath=(lineData,ratio=1)=>{
   const scaleX=createScaleX(lineData[0].time,lastDatum.time,width)
   const extentY = d3Array.extent(allYValues);
   const scaleY = createScaleY(extentY[0], extentY[1],width);
-  return d3.shape.line().x(d=>scaleX(d.time)).y(d=>(scaleY(d.value/ratio)));
+  return d3.shape.line().x(d=>scaleX(d.time)).y(d=>(scaleY(d.value*scale)));
 }
 
 class LineChart extends React.Component{
@@ -67,12 +78,12 @@ class LineChart extends React.Component{
       .map(candle=>({time:new Date(candle[0]),value:candle[5]}));// 5 is for volume
 //    console.log(lineData);
 
-    this.width=Dimensions.get('window').width;
     const high=getPath(highData)
     this.high=high(highData);
     const low=getPath(lowData)
     this.low=low(lowData);
-    const volume=getPath(volumeData,3)
+    const volume=getPath(volumeData,undefined,undefined,0.3)
+    this.width=Dimensions.get('window').width;
     this.volume=`M0 ${this.width} `+volume(volumeData).slice(1)+`L${this.width} ${this.width} Z`;
   }
   render(){
