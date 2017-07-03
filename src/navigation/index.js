@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View,ScrollView,StatusBar,Image } from 'react-native';
 import {addNavigationHelpers,TabNavigator,DrawerNavigator,StackNavigator,DrawerItems} from 'react-navigation';
+import Deposit from './../components/Deposit';
+import MarketDepth from './../components/MarketDepth';
+import LineChart from './../components/LineChart';
 
 const DrawerComponent=(props)=>(
   <View style={{flex:1}}>
@@ -45,6 +48,7 @@ class Trade extends React.Component{
   render(){
     return(
       <View>
+        <MarketDepth></MarketDepth>
         <Text>Trade here</Text>
       </View>
     )
@@ -63,7 +67,7 @@ class Bids extends React.Component{
   render(){
     return(
       <View>
-        <Text>Bids here</Text>
+        <LineChart></LineChart>
       </View>
     )
   }
@@ -119,6 +123,9 @@ const DrawerApp=DrawerNavigator({
     },
     Authenticate:{
       screen:Authenticate,
+    },
+    Deposit:{
+      screen:Deposit,
     }
   },{
     contentComponent:DrawerComponent,
