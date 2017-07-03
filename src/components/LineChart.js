@@ -60,11 +60,11 @@ class LineChart extends React.Component{
       });
     console.log(highData);
     let lowData=data[timeType]
-    .filter((candle,index)=>{return (!(index%3))})//sampling data here
-    .map(candle=>({time:new Date(candle[0]),value:candle[3]}));
+      .filter((candle,index)=>{return (!(index%3))})//sampling data here
+      .map(candle=>({time:new Date(candle[0]),value:candle[3]}));
     let volumeData=data[timeType]
-    .filter((candle,index)=>{return (!(index%3))})//sampling data here
-    .map(candle=>({time:new Date(candle[0]),value:candle[5]}));// 5 is for volume
+      .filter((candle,index)=>{return (!(index%3))})//sampling data here
+      .map(candle=>({time:new Date(candle[0]),value:candle[5]}));// 5 is for volume
 //    console.log(lineData);
 
     this.width=Dimensions.get('window').width;

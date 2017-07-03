@@ -67,7 +67,6 @@ class Bids extends React.Component{
   render(){
     return(
       <View>
-        <LineChart></LineChart>
       </View>
     )
   }
@@ -86,7 +85,7 @@ class Exchange extends React.Component{
   render(){
     return(
       <View>
-        <Text>Exchange here</Text>
+        <LineChart></LineChart>
       </View>
     )
   }
