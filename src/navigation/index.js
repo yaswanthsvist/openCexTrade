@@ -5,6 +5,8 @@ import Deposit from './../components/Deposit';
 import MarketDepth from './../components/MarketDepth';
 import LineChart from './../components/LineChart';
 
+import mockData from './../assets/mockData'
+
 const DrawerComponent=(props)=>(
   <View style={{flex:1}}>
     <View style={{flex:3,paddingBottom:20,paddingTop:20,backgroundColor:"#095974",justifyContent:'center'}}>
@@ -85,7 +87,7 @@ class Exchange extends React.Component{
   render(){
     return(
       <View>
-        <LineChart></LineChart>
+        <LineChart data={mockData.ohlcv}></LineChart>
       </View>
     )
   }
