@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet,Dimensions, Text, View,ScrollView,StatusBar,Image } from 'react-native';
-import Svg,{Path,G} from 'react-native-svg';
 import {ART} from "react-native";
 import * as scale from "d3-scale";
 import * as shape from "d3-shape";
@@ -59,20 +58,26 @@ const getPath=(
   return d3.shape.line().x(d=>scaleX(d.time)).y(d=>(scaleY(d.value*scale)));
 }
 
+
 class LineChart extends React.Component{
   constructor(props){
     super(props)
-    this.state={data:this.props.data};
-    const timeType='data1h';
-    let highData=this.state.data[timeType]
+
+    this.state={
+      data:this.props.data[this.props.timeType]
+    };
+    this.getlines=this.getlines.bind(this);
+  }
+  getlines(){
+    let highData=this.state.data
       .filter((candle,index)=>{return (!(index%3))})//sampling data here
       .map((candle)=>{
         return {time:new Date(candle[0]),value:candle[2]}
       });
-    let lowData=this.state.data[timeType]
+    let lowData=this.state.data
       .filter((candle,index)=>{return (!(index%3))})//sampling data here
       .map(candle=>({time:new Date(candle[0]),value:candle[3]}));
-    let volumeData=this.state.data[timeType]
+    let volumeData=this.state.data
       .filter((candle,index)=>{return (!(index%3))})//sampling data here
       .map(candle=>({time:new Date(candle[0]),value:candle[5]}));// 5 is for volume
 
@@ -84,7 +89,15 @@ class LineChart extends React.Component{
     this.width=Dimensions.get('window').width;
     this.volume=`M0 ${this.width} `+volume(volumeData).slice(1)+`L${this.width} ${this.width} Z`;
   }
+  componentWillReceiveProps(nextProps){
+      if(nextProps.timeType!==this.props.timeType){
+          this.setState({
+            data:this.props.data[nextProps.timeType]
+          })
+      }
+  }
   render(){
+    this.getlines();
     return(
       <View>
         <Surface width={this.width} height={this.width}>
