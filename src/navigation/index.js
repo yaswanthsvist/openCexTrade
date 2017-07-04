@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View,ScrollView,StatusBar,Image } from 'react-native';
+import { StyleSheet, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import {addNavigationHelpers,TabNavigator,DrawerNavigator,StackNavigator,DrawerItems} from 'react-navigation';
 import Deposit from './../components/Deposit';
 import MarketDepth from './../components/MarketDepth';
@@ -77,7 +77,22 @@ class Bids extends React.Component{
 class Exchange extends React.Component{
   constructor(props){
     super(props)
-    this.state={};
+    this.state={timeType:'data1h'};
+    this.showHourly=this.showHourly.bind(this);
+    this.showInMinuites=this.showInMinuites.bind(this);
+    this.showlast100days=this.showlast100days.bind(this);
+  }
+  showHourly(){
+    console.log("in hourly");
+    this.setState(()=>({"timeType":"data1h"}));
+  }
+  showInMinuites(){
+    console.log("in minute");
+    this.setState({timeType:'data1m'})
+  }
+  showlast100days(){
+    console.log("in minute");
+    this.setState({timeType:'data1d'})
   }
   static navigationOptions={
     title:"Exchange",
@@ -85,9 +100,28 @@ class Exchange extends React.Component{
     tabBarLabel: 'Exchange',
   }
   render(){
+    console.log(this.state.timeType);
     return(
       <View>
-        <LineChart data={mockData.ohlcv}></LineChart>
+        <LineChart data={mockData.ohlcv} timeType={this.state.timeType} ></LineChart>
+        <Button
+          onPress={this.showInMinuites}
+          title="Minute"
+          color="#841584"
+          >
+          </Button>
+        <Button
+          onPress={this.showHourly}
+          title="Hours"
+          color="#841584"
+          >
+          </Button>
+        <Button
+          onPress={this.showlast100days}
+          title="Days"
+          color="#841584"
+          >
+        </Button>
       </View>
     )
   }
