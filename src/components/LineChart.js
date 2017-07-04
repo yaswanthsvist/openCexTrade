@@ -62,7 +62,7 @@ const getPath=(
 class LineChart extends React.Component{
   constructor(props){
     super(props)
-
+    console.log(this.props);
     this.state={
       data:this.props.data[this.props.timeType]
     };
@@ -70,15 +70,15 @@ class LineChart extends React.Component{
   }
   getlines(){
     let highData=this.state.data
-      .filter((candle,index)=>{return (!(index%3))})//sampling data here
+      .filter((candle,index)=>{return (!(index%this.props.sampleRatio))})//sampling data here
       .map((candle)=>{
         return {time:new Date(candle[0]),value:candle[2]}
       });
     let lowData=this.state.data
-      .filter((candle,index)=>{return (!(index%3))})//sampling data here
+      .filter((candle,index)=>{return (!(index%this.props.sampleRatio))})//sampling data here
       .map(candle=>({time:new Date(candle[0]),value:candle[3]}));
     let volumeData=this.state.data
-      .filter((candle,index)=>{return (!(index%3))})//sampling data here
+      .filter((candle,index)=>{return (!(index%this.props.sampleRatio))})//sampling data here
       .map(candle=>({time:new Date(candle[0]),value:candle[5]}));// 5 is for volume
 
     const high=getPath(highData)
