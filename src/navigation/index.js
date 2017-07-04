@@ -77,22 +77,22 @@ class Bids extends React.Component{
 class Exchange extends React.Component{
   constructor(props){
     super(props)
-    this.state={timeType:'data1h'};
+    this.state={timeType:'data1h',sampleRatio:1};
     this.showHourly=this.showHourly.bind(this);
     this.showInMinuites=this.showInMinuites.bind(this);
     this.showlast100days=this.showlast100days.bind(this);
   }
   showHourly(){
     console.log("in hourly");
-    this.setState(()=>({"timeType":"data1h"}));
+    this.setState(()=>({"timeType":"data1h",sampleRatio:1}));
   }
   showInMinuites(){
     console.log("in minute");
-    this.setState({timeType:'data1m'})
+    this.setState({timeType:'data1m',sampleRatio:10})
   }
   showlast100days(){
     console.log("in minute");
-    this.setState({timeType:'data1d'})
+    this.setState({timeType:'data1d',sampleRatio:1})
   }
   static navigationOptions={
     title:"Exchange",
@@ -103,7 +103,7 @@ class Exchange extends React.Component{
     console.log(this.state.timeType);
     return(
       <View>
-        <LineChart data={mockData.ohlcv} timeType={this.state.timeType} ></LineChart>
+        <LineChart data={mockData.ohlcv} timeType={this.state.timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
         <Button
           onPress={this.showInMinuites}
           title="Minute"
