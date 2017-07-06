@@ -2,10 +2,12 @@ import React from 'react';
 import { StyleSheet, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import {addNavigationHelpers,TabNavigator,DrawerNavigator,StackNavigator,DrawerItems} from 'react-navigation';
 import Deposit from './../components/Deposit';
-import MarketDepth from './../components/MarketDepth';
-import LineChart from './../components/LineChart';
-
-import mockData from './../assets/mockData'
+import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
+import Exchange from "./../components/Exchange";
+import Authenticate from "./../components/Authenticate";
+import Trade from "./../components/Trade";
+import Bids from "./../components/Bids";
 
 const DrawerComponent=(props)=>(
   <View style={{flex:1}}>
@@ -17,115 +19,6 @@ const DrawerComponent=(props)=>(
     </View>
   </View>
 )
-
-class Authenticate extends React.Component{
-  constructor(props){
-    super(props)
-    this.state={};
-  }
-  static navigationOptions={
-    title:"Authenticate",
-    drawerLabel: 'Authenticate',
-    tabBarLabel: 'Authenticate',
-  }
-  render(){
-    return(
-      <View style={{flex:1}}>
-        <Text>Authenticate here</Text>
-      </View>
-    )
-  }
-}
-
-class Trade extends React.Component{
-  constructor(props){
-    super(props)
-    this.state={};
-  }
-  static navigationOptions={
-    title:"Trade",
-    drawerLabel: 'Home',
-    tabBarLabel: 'Trade',
-  }
-  render(){
-    return(
-      <View>
-        <MarketDepth></MarketDepth>
-        <Text>Trade here</Text>
-      </View>
-    )
-  }
-}
-class Bids extends React.Component{
-  constructor(props){
-    super(props)
-    this.state={};
-  }
-  static navigationOptions={
-    title:"Bids",
-    drawerLabel: 'Home',
-    tabBarLabel: 'Bids',
-  }
-  render(){
-    return(
-      <View>
-      </View>
-    )
-  }
-}
-
-class Exchange extends React.Component{
-  constructor(props){
-    super(props)
-    this.state={timeType:'data1h',sampleRatio:1};
-    this.showHourly=this.showHourly.bind(this);
-    this.showInMinuites=this.showInMinuites.bind(this);
-    this.showlast100days=this.showlast100days.bind(this);
-  }
-  showHourly(){
-    console.log("in hourly");
-    this.setState(()=>({"timeType":"data1h",sampleRatio:1}));
-  }
-  showInMinuites(){
-    console.log("in minute");
-    this.setState({timeType:'data1m',sampleRatio:10})
-  }
-  showlast100days(){
-    console.log("in minute");
-    this.setState({timeType:'data1d',sampleRatio:1})
-  }
-  static navigationOptions={
-    title:"Exchange",
-    drawerLabel: 'Home',
-    tabBarLabel: 'Exchange',
-  }
-  render(){
-    console.log(this.state.timeType);
-    return(
-      <View>
-        <LineChart data={mockData.ohlcv} timeType={this.state.timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
-        <Button
-          onPress={this.showInMinuites}
-          title="Minute"
-          color="#841584"
-          >
-          </Button>
-        <Button
-          onPress={this.showHourly}
-          title="Hours"
-          color="#841584"
-          >
-          </Button>
-        <Button
-          onPress={this.showlast100days}
-          title="Days"
-          color="#841584"
-          >
-        </Button>
-      </View>
-    )
-  }
-}
 
 const tabConfig={
   Exchange:{
@@ -152,7 +45,7 @@ const BidsTab=TabNavigator(tabConfig,{
   initialRouteName:"Bids",
   tabBarPosition:"bottom"
 })
-const DrawerApp=DrawerNavigator({
+export const AppNavigator=DrawerNavigator({
     Exchange:{
       screen:ExchangeTab,
     },
@@ -168,4 +61,23 @@ const DrawerApp=DrawerNavigator({
   }
 )
 
-export default DrawerApp;
+
+const AppWithNavigationState = ({ dispatch, nav }) => (
+  <AppNavigator navigation={addNavigationHelpers({ dispatch, state: nav })} />
+);
+
+AppWithNavigationState.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  nav: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = state => ({
+  nav: state.nav,
+});
+const mapDispatchToProps=(dispatch)=>{
+  return {
+    dispatch,
+  }
+}
+
+export default AppWithNavigationState=connect(mapStateToProps)(AppWithNavigationState);

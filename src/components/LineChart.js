@@ -55,14 +55,13 @@ const getPath=(
   const scaleX=createScaleX(lineData[0].time,lastDatum.time,width)
   const extentY = d3Array.extent(allYValues);
   const scaleY = createScaleY(extentY[0], extentY[1],width);
-  return d3.shape.line().x(d=>scaleX(d.time)).y(d=>(scaleY(d.value*scale)));
+  return d3.shape.line().x(d=>scaleX(d.time)).y(d=>(scaleY(d.value*scale))).curve(d3.shape.curveCatmullRom);
 }
 
 
 class LineChart extends React.Component{
   constructor(props){
     super(props)
-    console.log(this.props);
     this.state={
       data:this.props.data[this.props.timeType]
     };
