@@ -1,10 +1,13 @@
 import React from 'react';
-import DrawerApp from './src/navigation'
-
+import AppWithNavigationState from './src/navigation'
+import {Provider} from 'react-redux';
+import store from './src/configureStore';
 export default class App extends React.Component {
   render() {
     return (
-      <DrawerApp></DrawerApp>
+      <Provider store={store}>
+        <AppWithNavigationState></AppWithNavigationState>
+      </Provider>
     );
   }
 }
