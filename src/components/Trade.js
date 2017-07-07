@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
-import MarketDepth from './../components/MarketDepth';
 class Trade extends React.Component{
   constructor(props){
     super(props)
