@@ -4477,6 +4477,10 @@ react-native-tab-view@^0.0.65:
   dependencies:
     prop-types "^15.5.8"
 
+react-native-triangle@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-triangle/-/react-native-triangle-0.0.7.tgz#7d3b378937f2ae16b2db92059278d00aead5b7fb"
+
 react-native-vector-icons@4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-4.1.1.tgz#9ac75bde77d9243346668c51dca7756775428087"
