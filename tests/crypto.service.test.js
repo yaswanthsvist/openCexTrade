@@ -49,14 +49,32 @@ describe("crypto",()=>{
     const encryptedKey = crypto.encryptWithPassword( apikey , pwd );
     const result = crypto.validatePassword( modified , encryptedKey , invalidPassword );
     expect(result).toEqual(false);
-  })
-  it("SIGNATURE SHOULD be HEX DECIMAL & UPPER CASE",()=>{
-    const signature=crypto.generateSignature();
-    expect(signature).toMatch(/^[A-Z\d]+$/);
-  })
-});
-describe("encrypt apikey with password",()=>{
-  it('set keys', () => {
-    expect(1).toEqual(1);
   });
+  it("generated signature should be HEX DECIMAL & UPPER CASE",()=>{
+    const signature=crypto.generateSignature();
+    expect(signature).toMatch(/^[A-F\d]+$/); // should only allow only hexdigest with CAPITAL LETTERS from A to F(A,B,C,D,E,F) and numbers
+                                // /^[A-Z\d]+$/ only match with string with UPPER CASE and NUMBERS.
+    expect(signature.length).toEqual(64);
+  });
+  it("get Authentication parameters",()=>{
+    const pwd = "HodrigHallow31Oct81"
+    const apikey = "1234567890abcdefghijklmnopqrstuvzxyz";
+    const apiSecret = "The truth is a beautiful and terrible thing, and should therefore be treated with great caution  - Dumbledore.";
+
+    const encryptedKey = crypto.encryptWithPassword( apikey , pwd );
+    const encryptedSecret = crypto.encryptWithPassword( apiSecret , pwd );
+
+    const params=crypto.getNewAuthParams(
+        'up392dfsd32' ,//userid,
+        encryptedKey ,
+        encryptedSecret ,
+        pwd
+      );
+    expect( params.signature.length ).toEqual( 64 );
+    expect(params).toBeA('object');
+    expect(params.nonce).toBeA('number');
+    expect(params.signature).toBeA('string');
+    expect(params.apikey).toEqual(apikey);
+  });
+
 });

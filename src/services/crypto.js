@@ -22,20 +22,20 @@ const generateSignature = ( nonce = ( new Date( )  ) .getTime( ) , userID = '' ,
   let message = nonce+ userID + apikey
   return CryptoJS.HmacSHA256( message , apisecret ) .toString( CryptoJS.enc.Hex ) .toUpperCase( ) ;
 }
-const encryptWithPassword = ( msg='' , password='' ) =>{
+const encryptWithPassword = ( msg = '' , password = '' ) =>{
     return CryptoJS.AES.encrypt( msg , password ) ;
 }
-const decryptWithPassword = ( msg='' , password='' ) =>{
+const decryptWithPassword = ( msg = '' , password = '' ) =>{
     return CryptoJS.AES.decrypt( msg , password )
             .toString( CryptoJS.enc.Utf8 ) ;
 }
 const getNewAuthParams = ( userID = '' , encryptedKey = '' , encryptedSecret = '' , password = '' ) =>{
   const apikey = decryptWithPassword( encryptedKey , password ) ;
   const apisecret = decryptWithPassword( encryptedSecret , password ) ;
-  const  nounce = nonce = ( new Date( )  ) .getTime( ) ;
+  const nonce = ( new Date( )  ) .getTime( ) ;
   const signature = generateSignature( nonce , userID , apikey , apisecret ) ;
   return {
-    nounce , signature , apikey
+    nonce , signature , apikey
   }
 }
 const validatePassword = ( originalKey33perVissible , encryptedKey , password ) => {
@@ -52,6 +52,7 @@ const crypto = {
   encryptWithPassword,
   decryptWithPassword,
   generateSignature ,
+  getNewAuthParams,
   validatePassword,
 }
 export default crypto;
