@@ -11,6 +11,13 @@ import CryptoJS from 'crypto-js';
          message = nonce + userID + api_key
          signature = hmac.new( API_SECRET , msg = message , digestmod = hashlib.sha256 ) .hexdigest( ) .upper( )
 */
+const get33PerVisibleString = ( str ) => {
+    let temp = '';
+    for(let index in str){
+      temp += ( index%3 ) ? '*' : str[ index ];
+    }
+    return temp;
+}
 const generateSignature = ( nonce = ( new Date( )  ) .getTime( ) , userID = '' , apikey = '' , apisecret = '' ) =>{
   let message = nonce+ userID + apikey
   return CryptoJS.HmacSHA256( message , apisecret ) .toString( CryptoJS.enc.Hex ) .toUpperCase( ) ;
@@ -31,9 +38,20 @@ const getNewAuthParams = ( userID = '' , encryptedKey = '' , encryptedSecret = '
     nounce , signature , apikey
   }
 }
+const validatePassword = ( originalKey33perVissible , encryptedKey , password ) => {
+  const decryptedKey = decryptWithPassword( encryptedKey , password );
+  const decrypted33Vissiblekey = get33PerVisibleString( decryptedKey );
+  if( decrypted33Vissiblekey === originalKey33perVissible ){
+    return true;
+  }else{
+    return false;
+  }
+}
 const crypto = {
+  get33PerVisibleString,
   encryptWithPassword,
   decryptWithPassword,
   generateSignature ,
+  validatePassword,
 }
 export default crypto;
