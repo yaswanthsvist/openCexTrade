@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "crypto": "^0.0.3"
+  }
+}
