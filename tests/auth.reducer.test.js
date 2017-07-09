@@ -14,7 +14,7 @@ const defaultCredentials={
 describe("auth",()=>{
   it('set keys', () => {
     let action={
-      "type":"SET_SAFE_KEYS",
+      type:"SET_SAFE_KEYS",
       api20per:"************2e5mD4",
       encryptedKey:"ca981be48e90867604588e75d04feabb63cc007a8f8ad89b10616ed84d815504",
       userid:'up90990292',
