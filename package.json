@@ -21,6 +21,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "crypto-js": "^3.1.9-1",
     "d3": "^4.9.1",
     "deep-freeze": "^0.0.1",
     "expo": "^18.0.3",
