@@ -1,11 +1,16 @@
-import { createStore } from 'redux';
+import { createStore , applyMiddleware  } from 'redux';
+import thunk from 'redux-thunk';
 import rootReducer from './reducers'
 import {storeState,getStoredState} from './services/localStorage'
 const persistedState=getStoredState()||{};
-const store = createStore(rootReducer,persistedState);
+const store = createStore(
+  rootReducer,
+  persistedState,
+  applyMiddleware(thunk),
+);
 store.subscribe(()=>{
-    const {auth,exchange}=store.getState();
-    console.log(auth);
+    const {auth,exchange,public_data}=store.getState();
+    console.log(public_data.ohlcv);
     storeState({
         auth,
         exchange,

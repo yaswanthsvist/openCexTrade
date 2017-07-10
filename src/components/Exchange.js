@@ -3,6 +3,7 @@ import { StyleSheet, Text,Button,Dimensions, View,ScrollView,StatusBar,Image } f
 import LineChart from './ui/LineChart';
 import mockData from './../assets/mockData';
 import * as exchangeActions from './../actions/exchange'
+import * as public_dataActions from './../actions/public_data'
 import {connect} from 'react-redux'
 import DropDown from './ui/DropDown';
 
@@ -28,7 +29,7 @@ class Exchange extends React.Component{
     const {dispatch,exchange}=this.props;
     const action=exchangeActions.setTimeType('data1m');
     dispatch(action);
-    exchangeActions.fetchohlcv(exchange,dispatch);
+    dispatch(public_dataActions.fetchOhlcv());
   }
   showlast100days(){
     console.log("in days");

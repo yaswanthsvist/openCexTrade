@@ -9,7 +9,7 @@ const expectedDefaultState={
   chart:null,
   order_book:null,
 }
-describe("public",()=>{
+describe("public_data",()=>{
   it('get initail public', () => {
     let initialState=public_data(undefined,{type:""});
     expect(initialState).toEqual(expectedDefaultState);
