@@ -1,16 +1,15 @@
-
 import React from 'react';
 import { StyleSheet, Text,Button,Dimensions, View,ScrollView,StatusBar,Image } from 'react-native';
 import LineChart from './ui/LineChart';
-import mockData from './../assets/mockData'
+import mockData from './../assets/mockData';
+import * as exchangeActions from './../actions/exchange'
 import {connect} from 'react-redux'
 import DropDown from './ui/DropDown';
 
 class Exchange extends React.Component{
   constructor(props){
     super(props)
-    console.log(this.props);
-    this.state={timeType:'data1h',sampleRatio:1};
+    this.state={sampleRatio:1};
     this.showHourly=this.showHourly.bind(this);
     this.showInMinuites=this.showInMinuites.bind(this);
     this.showlast100days=this.showlast100days.bind(this);
@@ -21,16 +20,21 @@ class Exchange extends React.Component{
     ];
   }
   showHourly(){
-    console.log("in hourly");
-    this.setState(()=>({"timeType":"data1h",sampleRatio:1}));
+    const {dispatch}=this.props;
+    const action=exchangeActions.setTimeType('data1h');
+    dispatch(action);
   }
   showInMinuites(){
-    console.log("in minute");
-    this.setState({timeType:'data1m',sampleRatio:1})
+    const {dispatch,exchange}=this.props;
+    const action=exchangeActions.setTimeType('data1m');
+    dispatch(action);
+    exchangeActions.fetchohlcv(exchange,dispatch);
   }
   showlast100days(){
-    console.log("in minute");
-    this.setState({timeType:'data1d',sampleRatio:1})
+    console.log("in days");
+    const {dispatch}=this.props;
+    const action=exchangeActions.setTimeType('data1d');
+    dispatch(action);
   }
   static navigationOptions={
     title:"Exchange",
@@ -39,6 +43,8 @@ class Exchange extends React.Component{
   }
   render(){
     const tabBarHeight=60,statusBarHeight=20;
+    const {timeType}=this.props.exchange;
+    console.log(timeType);
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
     return(
       <View>
@@ -47,7 +53,7 @@ class Exchange extends React.Component{
         <DropDown data={this.symbolPairs}></DropDown>
         <ScrollView>
           <View style={{height:500}}>
-            <LineChart data={mockData.ohlcv} timeType={this.state.timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
+            <LineChart data={mockData.ohlcv} timeType={timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
             <Button
               onPress={this.showInMinuites}
               title="Minute"
@@ -77,6 +83,8 @@ class Exchange extends React.Component{
 const mapStateToProps = state => ({
   exchange: state.exchange,
 });
-
-
+/* const function mapDispatchToProps(dispatch) {
+   return bindActionCreators({reducer},dispatch)
+ }
+*/
 export default connect(mapStateToProps)(Exchange);
