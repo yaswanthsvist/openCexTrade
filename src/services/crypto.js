@@ -1,5 +1,7 @@
 import {hmacSHA512} from 'crypto-js/hmac-sha512';
 import CryptoJS from 'crypto-js';
+
+
 /**
      * @return
      * Generates a Signature is a HMAC-SHA256 encoded message containing: nonce , user ID and API key. The HMAC-SHA256 code must be generated using a secret key that was generated with your API key. This code must be converted to it's hexadecimal representation( 64 uppercase characters ) .
@@ -11,16 +13,17 @@ import CryptoJS from 'crypto-js';
          message = nonce + userID + api_key
          signature = hmac.new( API_SECRET , msg = message , digestmod = hashlib.sha256 ) .hexdigest( ) .upper( )
 */
+const generateSignature = ( nonce = ( new Date( )  ) .getTime( ) , userID = '' , apikey = '' , apisecret = '' ) =>{
+  let message = nonce+ userID + apikey
+  return CryptoJS.HmacSHA256( message , apisecret ) .toString( CryptoJS.enc.Hex ) .toUpperCase( ) ;
+}
+
 const get33PerVisibleString = ( str ) => {
     let temp = '';
     for(let index in str){
       temp += ( index%3 ) ? '*' : str[ index ];
     }
     return temp;
-}
-const generateSignature = ( nonce = ( new Date( )  ) .getTime( ) , userID = '' , apikey = '' , apisecret = '' ) =>{
-  let message = nonce+ userID + apikey
-  return CryptoJS.HmacSHA256( message , apisecret ) .toString( CryptoJS.enc.Hex ) .toUpperCase( ) ;
 }
 const encryptWithPassword = ( msg = '' , password = '' ) =>{
     return CryptoJS.AES.encrypt( msg , password ) ;

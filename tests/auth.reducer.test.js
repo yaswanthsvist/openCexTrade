@@ -7,34 +7,18 @@ const defaultAuthState={
   encryptedSecret:"",
   userid:'',
 }
-const defaultCredentials={
-  apikey:"",
-  apisecret:"",
-}
 describe("auth",()=>{
   it('set keys', () => {
     let action={
       type:"SET_SAFE_KEYS",
-      api20per:"************2e5mD4",
+      apiKey33per:"************2e5mD4",
       encryptedKey:"ca981be48e90867604588e75d04feabb63cc007a8f8ad89b10616ed84d815504",
-      userid:'up90990292',
+      encryptedSecret:"ZadDSE234tvsd9FS3dzx"
+      userid:'up32dmds3223',
     }
-    let initialState=exchange(undefined,{type:""});
+    let initialState=auth(undefined,{type:""});
     deepFreeze(initialState);
-    let newState=exchange(initialState,action);
-    expectedNewState={...expectedDefaultState,symbol1:"ETH",symbol2:"USD"}
-    expect(newState).toEqual(expectedNewState);
-  });
-});
-describe("credentials",()=>{
-  it('set keys', () => {
-    let action={
-      "type":"SET_API_KEY",
-      apikey:"efWE32fsFg38KDNSD2e5mD4",
-    }
-    let initialState=exchange(undefined,{type:""});
-    deepFreeze(initialState);
-    let newState=exchange(initialState,action);
+    let newState=authState(initialState,action);
     expectedNewState={...expectedDefaultState,symbol1:"ETH",symbol2:"USD"}
     expect(newState).toEqual(expectedNewState);
   });
