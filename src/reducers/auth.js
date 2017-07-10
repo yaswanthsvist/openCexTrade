@@ -1,4 +1,4 @@
-const password=(state=null,action)=>{
+export const password=(state=null,action)=>{
   switch (action.type) {
     case "SET_PASSWORD":
       return action.password;
@@ -14,7 +14,7 @@ const initailAuthState={
   userid:'',
 }
 
-const auth=(state=initialAuthState,action){
+const auth=(state=initailAuthState,action)=>{
   switch (action.type) {
     case "SET_SAFE_KEYS":
       return {
@@ -28,3 +28,4 @@ const auth=(state=initialAuthState,action){
     return state;
   }
 }
+export default  auth;

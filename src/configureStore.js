@@ -3,13 +3,12 @@ import rootReducer from './reducers'
 import {storeState,getStoredState} from './services/localStorage'
 const persistedState=getStoredState()||{};
 const store = createStore(rootReducer,persistedState);
-store.subscribe((state)=>{
+store.subscribe(()=>{
+    const {auth,exchange}=store.getState();
+    console.log(auth);
     storeState({
-      exchange:{},
-      "auth":{"api30":"",lockedKey:""},
-      "coinAddresses":{"ETH":"","BTC":""},
-      bids:{},
-      trade:{},
+        auth,
+        exchange,
     })
 })
 export default store;

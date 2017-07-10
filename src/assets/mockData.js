@@ -13,6 +13,7 @@ Historical 1m OHLCV Chart
     Close price
     Volume
 */
+// https://cex.io/api/ohlcv/hd//BTC/USD
 const ohlcv={"time":20170701,"data1m":[
     [1498867200,293.74999999,293.75,293.74999999,293.75,4.00000000],
     [1498867260,292.26,292.26,290.67285075,290.67285075,13.24546700],
