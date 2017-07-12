@@ -20,6 +20,10 @@ class Exchange extends React.Component{
       {key:'ETH:USD'},
     ];
   }
+  componentDidMount() {
+    const {dispatch}=this.props;
+    dispatch(public_dataActions.fetchOhlcv());
+  }
   showHourly(){
     const {dispatch}=this.props;
     const action=exchangeActions.setTimeType('data1h');
@@ -29,7 +33,6 @@ class Exchange extends React.Component{
     const {dispatch,exchange}=this.props;
     const action=exchangeActions.setTimeType('data1m');
     dispatch(action);
-    dispatch(public_dataActions.fetchOhlcv());
   }
   showlast100days(){
     console.log("in days");
@@ -45,6 +48,7 @@ class Exchange extends React.Component{
   render(){
     const tabBarHeight=60,statusBarHeight=20;
     const {timeType}=this.props.exchange;
+    const ohlcv=this.props.ohlcv;
     console.log(timeType);
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
     return(
@@ -54,7 +58,7 @@ class Exchange extends React.Component{
         <DropDown data={this.symbolPairs}></DropDown>
         <ScrollView>
           <View style={{height:500}}>
-            <LineChart data={mockData.ohlcv} timeType={timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
+            <LineChart data={ohlcv} timeType={timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
             <Button
               onPress={this.showInMinuites}
               title="Minute"
@@ -83,6 +87,7 @@ class Exchange extends React.Component{
 
 const mapStateToProps = state => ({
   exchange: state.exchange,
+  ohlcv:state.public_data.ohlcv,
 });
 /* const function mapDispatchToProps(dispatch) {
    return bindActionCreators({reducer},dispatch)

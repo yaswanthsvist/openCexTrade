@@ -47,24 +47,33 @@ export const fetchOhlcv=()=>{
     const d=new Date(time-86400000);
     let mm = d.getMonth() + 1; // getMonth() is zero-based
     let dd = d.getDate();
-    return [d.getFullYear(),
-            (mm>9 ? '' : '0') + mm,
-            (dd>9 ? '' : '0') + dd
-           ].join('');
+    return `${d.getFullYear()}${mm>9?mm:'0'+mm}${dd>9?dd:'0'+dd}`;
   }
 
   return (dispatch,getState) =>{
     console.log(getState().exchange);
-    const yyyymmdd=getPrevYYYYMMDD(time);
     const {symbol1,symbol2}=getState().exchange;
+    const yyyymmdd=getPrevYYYYMMDD(time);
     const uri=`ohlcv/hd/${yyyymmdd}/${symbol1}/${symbol2}`;
-
-    return webService.get(uri).then(
+    webService.get(uri).then(
       response=>{
-        if(response==null){
+        if(response!=null){
+          console.log(response.time);
           dispatch(setOhlcv(response))
         }else {
-          console.log(response.time);
+          const yyyymmdd=getPrevYYYYMMDD(time-86400000); //48hrs back old data
+          const uri=`ohlcv/hd/${yyyymmdd}/${symbol1}/${symbol2}`;
+          webService.get(uri).then(
+            response=>{
+              if(response!=null){
+                console.log(response.time);
+                dispatch(setOhlcv(response))
+              }else {
+              }
+            },
+            error=>{
+            }
+          );
         }
       },
       error=>{
