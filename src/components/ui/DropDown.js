@@ -40,6 +40,10 @@ class DropDown extends React.Component{
   }
   selectedItem(key){
       this.setState({'selected':key},this.toggleDropDownView);
+      const {dispatch} =this.props;
+      const keys=key.split(':');
+      const action=exchangeActions.setSymbols(keys[0],keys[1]);
+      dispatch(action);
   }
   render(){
     const AnimatedStyle={height:this.animatedValue};
