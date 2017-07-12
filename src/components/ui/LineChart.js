@@ -62,22 +62,31 @@ const getPath=(
 class LineChart extends React.Component{
   constructor(props){
     super(props)
+    if(this.props.data==null){
+      return;
+    }
     this.state={
-      data:this.props.data[this.props.timeType]
+      data:this.props.data[this.props.timeType],
+      sampleRatio:this.props.sampleRatio,
     };
     this.getlines=this.getlines.bind(this);
   }
   getlines(){
+    this.width=Dimensions.get('window').width;
+    if(this.props.data==null||this.state==null||this.state.data==null){
+      return
+    }
+    console.log(typeof this.state.data);
     let highData=this.state.data
-      .filter((candle,index)=>{return (!(index%this.props.sampleRatio))})//sampling data here
+      .filter((candle,index)=>{return (!(index%this.state.sampleRatio))})//sampling data here
       .map((candle)=>{
         return {time:new Date(candle[0]),value:candle[2]}
       });
     let lowData=this.state.data
-      .filter((candle,index)=>{return (!(index%this.props.sampleRatio))})//sampling data here
+      .filter((candle,index)=>{return (!(index%this.state.sampleRatio))})//sampling data here
       .map(candle=>({time:new Date(candle[0]),value:candle[3]}));
     let volumeData=this.state.data
-      .filter((candle,index)=>{return (!(index%this.props.sampleRatio))})//sampling data here
+      .filter((candle,index)=>{return (!(index%this.state.sampleRatio))})//sampling data here
       .map(candle=>({time:new Date(candle[0]),value:candle[5]}));// 5 is for volume
 
     const high=getPath(highData)
@@ -85,15 +94,16 @@ class LineChart extends React.Component{
     const low=getPath(lowData)
     this.low=low(lowData);
     const volume=getPath(volumeData,undefined,undefined,0.3)
-    this.width=Dimensions.get('window').width;
     this.volume=`M0 ${this.width} `+volume(volumeData).slice(1)+`L${this.width} ${this.width} Z`;
   }
   componentWillReceiveProps(nextProps){
-      if(nextProps.timeType!==this.props.timeType){
-          this.setState({
-            data:this.props.data[nextProps.timeType]
-          })
+      if(nextProps.data==null){
+        return
       }
+      console.log(nextProps.data.time);
+        this.setState({
+          data:JSON.parse(nextProps.data[nextProps.timeType])
+        })
   }
   render(){
     this.getlines();
