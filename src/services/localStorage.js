@@ -12,7 +12,6 @@ export const getStoredState=()=>{
 export const storeState=(state)=>{
   try{
     const stringifiedState=JSON.stringify(state);
-    console.log(stringifiedState);
     localStorage.setItem("cex_state",stringifiedState);
   }catch(err){}
 }

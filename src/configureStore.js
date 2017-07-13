@@ -10,8 +10,6 @@ const store = createStore(
 );
 store.subscribe(()=>{
     const {auth,exchange,public_data}=store.getState();
-    if(public_data.ohlcv)
-    console.log(public_data.ohlcv.time);
     storeState({
         auth,
         exchange,
