@@ -35,35 +35,21 @@ function createScaleY(minY, maxY, height) {
 
 }
 
-const generateAxisData=(data,lines=5) => {
-
-  const values = data.map( item => item.value );
-  const timeLine = data.map( item => item.time );
-
-  const hmin = Math.min( ...values );//height min
-  const hmax = Math.max( ...values );//height max
-  const gapBtwHLines = ( hmax - hmin )/ lines; //gap between horizontal Lines
-  const tmin = Math.min( ...timeLine );
-  const tmax = Math.max( ...timeLine );
-  const gapBtwVLines = ( tmax - tmin )/ lines; //time gap between Vertical Lines
-
-  let linesHData=[];
-  let linesVData=[];
+const generateAxis = ( width , height , lines = 5 ) => {
+  const gapBtwHLines = ( height )/ lines; //gap between horizontal Lines
+  const gapBtwVLines = ( width )/ lines; //time gap between Vertical Lines
+  let linesData=[];
+  let hValues=[];
+  let wValues=[];
   for(let i = 0 ; i < lines ; i++ ){
-    const hValue = hmin + gapBtwHLines*i ;
-    const tValue = tmin + gapBtwVLines*i ;
-    linesHData.push( [
-                { time : tmin , value : hValue },
-                { time : tmax , value : hValue },
-                { time : tmax , value : hValue*0.9999 }
-              ] );//height will be constant
-    linesVData.push( [
-                { time : tValue , value : hmin },
-                { time : tValue , value : hmax },
-                { time : tValue , value : hmax*0.9999 }
-              ] );//time will be constant
+    const hValue =gapBtwHLines*i ;
+    const wValue =gapBtwVLines*i ;
+    hValues.push(hValue);
+    wValues.push(wValue);
+    linesData.push(`M0,${hValue}L${width},${hValue}`);//height will be constant
+    linesData.push(`M${wValue},0L${wValue},${height}`);//height will be constant
   }
-  return { linesVData , linesHData };
+  return {linesData,hValues,wValues};
 }
 /**
  * Create d attribute for an SVG path or ART's Shape.
@@ -73,24 +59,42 @@ const generateAxisData=(data,lines=5) => {
  * @param {number} scale to scale y axis points.
  */
 
+const getTimeFormat=(time,type)=>{
+  const d=new Date(time*1000);
+  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const month=months[d.getMonth()];
+  switch(type){
+    case 'data1h':
+    case 'data1m':
+      return `${(d.getHours()>9?'':'0')+d.getHours()}:${(d.getMinutes()>9?'':'0')+d.getMinutes()}\n${d.getDate()}\n${month}`
+    default:
+      return `${d.getDate()}\n${month}`;
+  }
+}
 
 class LineChart extends React.Component{
   constructor( props ){
     super( props )
     this.width = Dimensions.get('window').width-60;
+    const {linesData,hValues,wValues}=generateAxis(this.width,this.width,8);
+    this.axis = linesData;
+    this.baseTicks=wValues;
+    this.vertiaclTicks=hValues;
+    this.getlines = this.getlines.bind( this );
+    this.getPath = this.getPath.bind( this );
+    this.generateTicks = this.generateTicks.bind( this );
     if( this.props.data == null ){
       this.state = {
         data : null ,
         sampleRatio : this.props.sampleRatio,
       };
       return;
+    }else{
+      this.state = {
+        data : JSON.parse( this.props.data[ this.props.timeType ]),
+        sampleRatio : this.props.sampleRatio ,
+      };
     }
-    this.state={
-      data : this.props.data[ this.props.timeType ],
-      sampleRatio : this.props.sampleRatio ,
-    };
-    this.getlines = this.getlines.bind( this );
-    this.getPath = this.getPath.bind( this );
   }
   getPath(
     lineData,
@@ -110,8 +114,22 @@ class LineChart extends React.Component{
               .x( d => scaleX( d.time ) )
               .y( d => ( scaleY( d.value * scale ) ) );
   }
+
+  generateTicks(data){
+    const values = data.map( item => item.value );
+    const timeLine = data.map( item => item.time );
+    const hmin = Math.min( ...values );//height min
+    const hmax = Math.max( ...values );//height max
+    const gapBtwHLines = ( hmax - hmin )/ this.baseTicks.length; //gap between horizontal Lines
+    const tmin = Math.min( ...timeLine );
+    const tmax = Math.max( ...timeLine );
+    const gapBtwVLines = ( tmax - tmin )/ this.baseTicks.length; //time gap between Vertical Lines
+    this.baseTicks=this.baseTicks.map((tick,i)=>{return getTimeFormat((tmin+gapBtwVLines*i),this.props.timeType)});
+    this.vertiaclTicks=this.vertiaclTicks.map((tick,i)=>(hmin+gapBtwHLines*i).toPrecision(8));
+  }
+
   getlines(){
-    if( this.state.data == null ){
+    if( this.state.data == null){
       return
     }
     let highData = this.state.data
@@ -125,10 +143,7 @@ class LineChart extends React.Component{
     let volumeData = this.state.data
       .filter( (candle,index) => { return ( !( index%this.state.sampleRatio ) ) } )//sampling data here
       .map( candle => ( { time : new Date( candle[0] ) , value : candle[5] } ) );// 5 is for volume
-
-    const axisData = generateAxisData(highData);
-    this.hLines=axisData.linesHData.map(data=>this.getPath(data)(data));
-    this.vLines=axisData.linesVData.map(data=>(this.getPath(data)(data)));
+    this.generateTicks( highData );
     const high = this.getPath( highData )
     this.high = high( highData );
     const low = this.getPath( lowData )
@@ -152,16 +167,22 @@ class LineChart extends React.Component{
     if( this.state.data == null ){
       return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
     }
+    const textWidth=this.width/this.baseTicks.length;
     return(
       <View style = {styles.chartView}>
         <Surface width = {this.width} height = {this.width}>
           <Group x = {0} y = {0}>
-            <Shape
-              d = 'M0,300L300,300L277.3109243697479,214.3843714285714'
-              fill = '#000'
-              strokeWidth = {1}
-              >
-            </Shape>
+          {
+            this.axis.map((d,i)=>(
+              <Shape
+                d = {d}
+                key={i+'axis'}
+                stroke = '#aaa'
+                strokeWidth = {1}
+                >
+              </Shape>
+            ))
+          }
             <Shape
               d  =  {this.high}
               stroke = '#1faa00'
@@ -181,30 +202,18 @@ class LineChart extends React.Component{
               >
             </Shape>
 
-            {
-              this.hLines.map((d,i)=>(
-                <Shape
-                  d = {d}
-                  key={i+'h'}
-                  fill = '#000'
-                  strokeWidth = {1}
-                  >
-                </Shape>
-              ))
-            }
-            {
-              this.vLines.map((d,i)=>(
-                <Shape
-                  d = {d}
-                  key={i+'v'}
-                  fill = '#aaa'
-                  strokeWidth = {1}
-                  >
-                </Shape>
-              ))
-            }
           </Group>
         </Surface>
+        <View style={{height:60,width:this.width,flexDirection:'row'}}>
+          {
+            this.baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+          }
+        </View>
+        <View style={{position : 'absolute',right:0,width:60,height:this.width,flexDirection:'column'}}>
+          {
+            this.vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textWidth}]} key={i+'vTick'} >{tick}</Text>)
+          }
+        </View>
       </View>
     )
   }
@@ -231,5 +240,9 @@ const styles = StyleSheet.create({
     textAlign : 'center',
     fontSize : 18,
     fontWeight : 'bold',
+  },
+  bTickText : {
+    fontSize : 10,
+    color : '#870000',
   },
 })
