@@ -24,6 +24,13 @@ class Exchange extends React.Component{
     const {dispatch}=this.props;
     dispatch(public_dataActions.fetchOhlcv());
   }
+  componentWillReceiveProps(nextProps){
+      if(nextProps.exchange.symbol1==this.props.exchange.symbol1&&nextProps.exchange.symbol2==this.props.exchange.symbol2){
+        return
+      }
+      const {dispatch}=this.props;
+      dispatch(public_dataActions.fetchOhlcv());
+  }
   showHourly(){
     const {dispatch}=this.props;
     const action=exchangeActions.setTimeType('data1h');

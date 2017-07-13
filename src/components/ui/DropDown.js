@@ -1,7 +1,9 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import { StyleSheet, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import { TouchableHighlight, TouchableWithoutFeedback,List,ListItem,Animated,Easing,FlatList} from 'react-native';
 import Triangle from 'react-native-triangle';
+import * as exchangeActions from './../../actions/exchange'
 /*
 @Do not use DropDown Component inside a ScrollView since DropDown is using a ScrollView internally.
 */
@@ -91,5 +93,7 @@ class DropDown extends React.Component{
     )
   }
 }
-
-export default DropDown;
+const mapStateToProps = state => ({
+  exchange: state.exchange
+});
+export default connect()(DropDown);

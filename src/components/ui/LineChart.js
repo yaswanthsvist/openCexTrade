@@ -63,6 +63,10 @@ class LineChart extends React.Component{
   constructor(props){
     super(props)
     if(this.props.data==null){
+      this.state={
+        data:null,
+        sampleRatio:this.props.sampleRatio,
+      };
       return;
     }
     this.state={
@@ -73,10 +77,11 @@ class LineChart extends React.Component{
   }
   getlines(){
     this.width=Dimensions.get('window').width;
-    if(this.props.data==null||this.state==null||this.state.data==null){
+    if(
+      this.state.data==null
+    ){
       return
     }
-    console.log(typeof this.state.data);
     let highData=this.state.data
       .filter((candle,index)=>{return (!(index%this.state.sampleRatio))})//sampling data here
       .map((candle)=>{
@@ -97,29 +102,34 @@ class LineChart extends React.Component{
     this.volume=`M0 ${this.width} `+volume(volumeData).slice(1)+`L${this.width} ${this.width} Z`;
   }
   componentWillReceiveProps(nextProps){
-      if(nextProps.data==null){
-        return
-      }
-      console.log(nextProps.data.time);
-        this.setState({
-          data:JSON.parse(nextProps.data[nextProps.timeType])
-        })
+    if(nextProps.data==null || Array.isArray(nextProps.data)){
+      this.setState({
+        data:null
+      })
+      return
+    }
+    this.setState({
+      data:JSON.parse(nextProps.data[nextProps.timeType])
+    })
   }
   render(){
     this.getlines();
+    if(this.state.data==null){
+      return (<View style={styles.chartMsgView}><Text style={styles.chartMsg}>Unable to get the Data</Text></View>);
+    }
     return(
-      <View>
+      <View style={styles.chartView}>
         <Surface width={this.width} height={this.width}>
           <Group x={0} y={0}>
             <Shape
               d={this.high}
-              stroke='#0f0'
+              stroke='#1faa00'
               strokeWidth={1}
               >
             </Shape>
             <Shape
               d={this.low}
-              stroke='#f00'
+              stroke='#c300'
               strokeWidth={1}
               >
             </Shape>
@@ -136,3 +146,24 @@ class LineChart extends React.Component{
   }
 }
 export default LineChart;
+
+const windowWidth=Dimensions.get('window').width;
+const styles=StyleSheet.create({
+  chartMsgView:{
+    flexDirection:"row",
+    alignItems:'center',
+    backgroundColor:'#448aff',
+    width:windowWidth,
+    height:windowWidth,
+  },
+  chartView:{
+    backgroundColor:'#c0cfff',
+  },
+  chartMsg:{
+    width:windowWidth,
+    color:'#eee',
+    textAlign:'center',
+    fontSize:18,
+    fontWeight:'bold',
+  },
+})
