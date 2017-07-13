@@ -15,6 +15,7 @@ class DropDown extends React.Component{
       data:this.props.data,
     }
     this.dropHeight=this.props.dropHeight||100;
+    this.actionToDispatchAfterAnimation=undefined;
     this.toggleDropDownView=this.toggleDropDownView.bind(this);
     this.selectedItem=this.selectedItem.bind(this);
   }
@@ -35,17 +36,21 @@ class DropDown extends React.Component{
       options={...options,toValue:this.dropHeight}
       optionsAngle={...optionsAngle,toValue:1}
     }
-      Animated.parallel([
-        Animated.timing(this.animatedValue,options),
-        Animated.timing(this.animatedAngle,optionsAngle)
-      ]).start()
+    const {dispatch} =this.props;
+    Animated.parallel([
+      Animated.timing(this.animatedValue,options),
+      Animated.timing(this.animatedAngle,optionsAngle)
+    ]).start(()=>{
+      if(this.actionToDispatchAfterAnimation!=undefined){
+        dispatch(this.actionToDispatchAfterAnimation)
+        this.actionToDispatchAfterAnimation=undefined;
+      }
+    })
   }
   selectedItem(key){
-      this.setState({'selected':key},this.toggleDropDownView);
-      const {dispatch} =this.props;
-      const keys=key.split(':');
-      const action=exchangeActions.setSymbols(keys[0],keys[1]);
-      dispatch(action);
+    const keys=key.split(':');
+    this.actionToDispatchAfterAnimation=exchangeActions.setSymbols(keys[0],keys[1]);
+    this.setState({'selected':key},this.toggleDropDownView);
   }
   render(){
     const AnimatedStyle={height:this.animatedValue};
@@ -80,8 +85,8 @@ class DropDown extends React.Component{
           {  <FlatList data={this.state.data}
             renderItem={({item})=>(
               <TouchableHighlight onPress={()=>this.selectedItem(item.key)}>
-                <View style={{backgroundColor:'#ccc'}}>
-                  <Text style={{textAlign:'center'}}>{`${item.key}`}</Text>
+                <View style={styles.keyView}>
+                  <Text style={styles.keyText}>{`${item.key}`}</Text>
                 </View>
               </TouchableHighlight>
               )
@@ -97,3 +102,15 @@ const mapStateToProps = state => ({
   exchange: state.exchange
 });
 export default connect()(DropDown);
+const styles=StyleSheet.create({
+  keyText:{
+    fontSize:15,
+    textAlign:'center'
+  },
+  keyView:{
+    backgroundColor:'#ccc',
+    padding:4,
+    borderBottomWidth:1,
+    borderBottomColor:'#333',
+  }
+})
