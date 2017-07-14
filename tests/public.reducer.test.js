@@ -1,4 +1,4 @@
-import public_data from './../src/reducers/public_data';
+import public_data,{bitfinex} from './../src/reducers/public_data';
 import expect from 'expect'
 import deepFreeze from 'deep-freeze';
 const expectedDefaultState={
@@ -9,8 +9,7 @@ const expectedDefaultState={
   chart:null,
   order_book:null,
 }
-const defSocketData={
-  bitfinex:{
+const defbitfinexData={
    "candles":{
      key:'trade:1m:tETHUSD',
      data:null,
@@ -73,19 +72,42 @@ describe("public_data",()=>{
   });
 });
 describe( 'Bitfinex  web Socket test cases',()=>{
-  it('subscribe' , () => {
+  it('subscribed' , () => {
     const action = {
-     type:"BITFINEX_SUBSCRIBE_CANDLE",
-     event: "subscribe",
-     channel: "candles",
-     key: "trade:1m:tBTCUSD"
+     type:"BITFINEX_SUBSCRIBED_CANDLE",
+     key: "trade:1h:tETHUSD",
+     chanId:54123,
     }
+    const expectedState={
+      "candles":{
+        key:'trade:1h:tETHUSD',
+        data:{},
+        chanId:54123,
+     }
+    }
+    let newState=bitfinex(undefined,action);
+    expect(newState).toEqual(expectedState);
   })
   it('unsubscribe' , () => {
     const action = {
-     type:"BITFINEX_UNSUBSCRIBE_CANDLE",
-     "event": "unsubscribe",
-     "chanId": CHANNEL_ID
+     type:"BITFINEX_UNSUBSCRIBED_CANDLE",
     }
-  })
+    const initialState={
+      "candles":{
+        key:'trade:30m:tETHUSD',
+        chanId:54123,
+        data:{},
+     }
+    }
+    const expectedState={
+      "candles":{
+        key:'trade:30m:tETHUSD',
+        chanId:null,
+        data:{},
+      }
+    }
+    let newState=bitfinex(initialState,action);
+    expect(newState).toEqual(expectedState);
+  });
+  
 })

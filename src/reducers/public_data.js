@@ -30,4 +30,38 @@ const public_data=(state=defState,action)=>{
       return state;
   }
 }
+const defBitfinexState={
+  "candles":{
+    key:'trade:1m:tBTCUSD',
+    data:null,
+    chanId:null,
+ }
+}
+export const bitfinex=(state=defBitfinexState,action)=>{
+  switch (action.type) {
+    case "BITFINEX_SUBSCRIBED_CANDLE":
+      return {
+        ...state,
+        candles:{
+          key:action.key,
+          data:{},
+          chanId:action.chanId,
+        }
+      };
+      break;
+    case "BITFINEX_UNSUBSCRIBED_CANDLE":
+      return {
+        ...state,
+        candles:{
+          ...state.candles,
+          data:{},
+          chanId:null,
+        }
+      };
+      break;
+    default:
+      return state;
+  }
+}
+
 export default public_data;
