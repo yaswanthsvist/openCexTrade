@@ -9,6 +9,15 @@ const expectedDefaultState={
   chart:null,
   order_book:null,
 }
+const defSocketData={
+  bitfinex:{
+   "candles":{
+     key:'trade:1m:tETHUSD',
+     data:null,
+     chanId:null,
+  }
+};
+
 describe("public_data",()=>{
   it('get initail public', () => {
     let initialState=public_data(undefined,{type:""});
@@ -63,3 +72,20 @@ describe("public_data",()=>{
     expect(newState.order_book).toEqual(action.order_book);
   });
 });
+describe( 'Bitfinex  web Socket test cases',()=>{
+  it('subscribe' , () => {
+    const action = {
+     type:"BITFINEX_SUBSCRIBE_CANDLE",
+     event: "subscribe",
+     channel: "candles",
+     key: "trade:1m:tBTCUSD"
+    }
+  })
+  it('unsubscribe' , () => {
+    const action = {
+     type:"BITFINEX_UNSUBSCRIBE_CANDLE",
+     "event": "unsubscribe",
+     "chanId": CHANNEL_ID
+    }
+  })
+})

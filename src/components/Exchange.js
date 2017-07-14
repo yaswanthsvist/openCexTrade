@@ -6,7 +6,6 @@ import * as exchangeActions from './../actions/exchange'
 import * as public_dataActions from './../actions/public_data'
 import {connect} from 'react-redux'
 import DropDown from './ui/DropDown';
-
 class Exchange extends React.Component{
   constructor(props){
     super(props)

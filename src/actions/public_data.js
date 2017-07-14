@@ -1,4 +1,5 @@
 import webService from './../services/webService'
+import webSocket from './../services/webSocket';
 export const setOhlcv=(ohlcv)=>{
   return {
     type:"SET_PUBLIC_OHLCV",
