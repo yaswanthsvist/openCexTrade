@@ -54,24 +54,26 @@ const candles=(state=defBitfinexState.candles,action)=>{
       };
       break;
     case "BITFINEX_INITIALIZE_CANDLE":
+      if(state.chanId!=action.chanId){
+        return state;
+      }
       return {
           ...state,
-          chanId:action.chanId,
           data:[...action.data],
       }
     case "BITFINEX_UPDATE_CANDLE":
-         if(state.chanId!=action.chanId||state.data[0][0]>action.data[0][0]){
+         if(state.chanId!=action.chanId||state.data[0][0]>action.data[0]){
            return state;
          }
-         if(state.data[0][0]===action.data[0][0]){
+         if(state.data[0][0]===action.data[0]){
           return {
               ...state,
-              data:[...action.data,...state.data.slice(1)],
+              data:[action.data,...state.data.slice(1)],
           }
-        }else if(state.data[0][0]<action.data[0][0]){
+        }else if(state.data[0][0]<action.data[0]){
           return {
               ...state,
-              data:[...action.data,...state.data],
+              data:[action.data,...state.data],
           }
         }
     default:

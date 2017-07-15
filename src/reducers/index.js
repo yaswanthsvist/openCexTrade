@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import nav from './navReducer';
 import exchange from './exchange';
 import auth,{password} from './auth';
-import public_data from './public_data';
+import public_data,{bitfinex} from './public_data';
 
 rootReducer=combineReducers({
   nav,
@@ -10,5 +10,6 @@ rootReducer=combineReducers({
   auth,
   password,
   public_data,
+  bitfinex,
 })
 export default rootReducer;

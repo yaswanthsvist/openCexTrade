@@ -113,7 +113,7 @@ describe( 'Bitfinex  web Socket test cases',()=>{
     const initialState={
       "candles":{
         key:'trade:30m:tETHUSD',
-        chanId:null,
+        chanId:27893,
         data:[],
       }
     }
@@ -182,119 +182,7 @@ describe( 'Bitfinex  web Socket test cases',()=>{
     let newState=bitfinex(initialState,action);
     expect(newState).toEqual(expectedState);
   })
-});
-describe( 'Bitfinex  web Socket test cases',()=>{
-    it('subscribed' , () => {
-      const action = {
-       type:"BITFINEX_SUBSCRIBED_CANDLE",
-       key: "trade:1h:tETHUSD",
-       chanId:54123,
-      }
-      const expectedState={
-        "candles":{
-          key:'trade:1h:tETHUSD',
-          data:[],
-          chanId:54123,
-       }
-      }
-      let newState=bitfinex(undefined,action);
-      expect(newState).toEqual(expectedState);
-    })
-    it('unsubscribe' , () => {
-      const action = {
-       type:"BITFINEX_UNSUBSCRIBED_CANDLE",
-      }
-      const initialState={
-        "candles":{
-          key:'trade:30m:tETHUSD',
-          chanId:54123,
-          data:[],
-       }
-      }
-      const expectedState={
-        "candles":{
-          key:'trade:30m:tETHUSD',
-          chanId:null,
-          data:[],
-        }
-      }
-      let newState=bitfinex(initialState,action);
-      expect(newState).toEqual(expectedState);
-    });
-    it('initialize' , () => {
-      const initialState={
-        "candles":{
-          key:'trade:30m:tETHUSD',
-          chanId:null,
-          data:[],
-        }
-      }
-      const action = {
-       type:"BITFINEX_INITIALIZE_CANDLE",
-       chanId:27893,
-       data:[
-            [
-              1500055200000,
-              2195.4,
-              2209.7,
-              2215,
-              2174,
-              2241.22567577
-            ],
-            [
-              1500051600000,
-              2194.9,
-              2195.4,
-              2197,
-              2154.1,
-              2707.78465686
-            ],
-            [
-              1500048000000,
-              2236.9,
-              2194.9,
-              2257.1,
-              2171.1,
-              4625.61552326
-            ],
-       ]
-      }
-      const expectedState={
-        "candles":{
-          chanId:27893,
-          key:'trade:30m:tETHUSD',
-          data:[
-            [
-              1500055200000,
-              2195.4,
-              2209.7,
-              2215,
-              2174,
-              2241.22567577
-            ],
-            [
-              1500051600000,
-              2194.9,
-              2195.4,
-              2197,
-              2154.1,
-              2707.78465686
-            ],
-            [
-              1500048000000,
-              2236.9,
-              2194.9,
-              2257.1,
-              2171.1,
-              4625.61552326
-            ],
-          ],
-       }
-      }
-      let newState=bitfinex(initialState,action);
-      expect(newState).toEqual(expectedState);
-    })
-    it('update' , () => {
+  it('update' , () => {
       const initialState={
         "candles":{
           chanId:27893,
@@ -331,14 +219,12 @@ describe( 'Bitfinex  web Socket test cases',()=>{
        type:"BITFINEX_UPDATE_CANDLE",
        chanId:27893,
        data:[
-            [
-              1500055200000,
-              2196.4,
-              2210.7,
-              2216,
-              2175,
-              2242.22567577
-            ],
+          1500055200000,
+          2196.4,
+          2210.7,
+          2216,
+          2175,
+          2242.22567577
        ]
       }
       const expectedState={
@@ -376,194 +262,188 @@ describe( 'Bitfinex  web Socket test cases',()=>{
       let newState=bitfinex(initialState,action);
       expect(newState.candles.data).toEqual(expectedState.candles.data);
     });
-    it('update should add new candle entry if its timestamp is greater than highest timestamp in available candle data' , () => {
-      const initialState={
-        "candles":{
-          chanId:27893,
-          key:'trade:30m:tETHUSD',
-          data:[
-            [
-              1500055200000,
-              2195.4,
-              2209.7,
-              2215,
-              2174,
-              2241.22567577
-            ],
-            [
-              1500051600000,
-              2194.9,
-              2195.4,
-              2197,
-              2154.1,
-              2707.78465686
-            ],
-            [
-              1500048000000,
-              2236.9,
-              2194.9,
-              2257.1,
-              2171.1,
-              4625.61552326
-            ],
+  it('update should add new candle entry if its timestamp is greater than highest timestamp in available candle data' , () => {
+    const initialState={
+      "candles":{
+        chanId:27893,
+        key:'trade:30m:tETHUSD',
+        data:[
+          [
+            1500055200000,
+            2195.4,
+            2209.7,
+            2215,
+            2174,
+            2241.22567577
           ],
-        }
-      }
-      const action = {
-       type:"BITFINEX_UPDATE_CANDLE",
-       chanId:27893,
-       data:[
-            [
-              1500058800000,
-              2200.4,
-              2210.7,
-              2216,
-              2175,
-              2242.22567577
-            ],
-       ]
-      }
-      const expectedState={
-        "candles":{
-          chanId:27893,
-          key:'trade:30m:tETHUSD',
-          data:[
-            [
-              1500058800000,
-              2200.4,
-              2210.7,
-              2216,
-              2175,
-              2242.22567577
-            ],
-            [
-              1500055200000,
-              2195.4,
-              2209.7,
-              2215,
-              2174,
-              2241.22567577
-            ],
-            [
-              1500051600000,
-              2194.9,
-              2195.4,
-              2197,
-              2154.1,
-              2707.78465686
-            ],
-            [
-              1500048000000,
-              2236.9,
-              2194.9,
-              2257.1,
-              2171.1,
-              4625.61552326
-            ],
+          [
+            1500051600000,
+            2194.9,
+            2195.4,
+            2197,
+            2154.1,
+            2707.78465686
           ],
-       }
-      }
-      let newState=bitfinex(initialState,action);
-      expect(newState.candles.data).toEqual(expectedState.candles.data);
-    });
-    it('update should not add/update a candle entry if its timestamp is less than highest timestamp in available candle data' , () => {
-      const initialState={
-        "candles":{
-          chanId:27893,
-          key:'trade:30m:tETHUSD',
-          data:[
-            [
-              1500055200000,
-              2195.4,
-              2209.7,
-              2215,
-              2174,
-              2241.22567577
-            ],
-            [
-              1500051600000,
-              2194.9,
-              2195.4,
-              2197,
-              2154.1,
-              2707.78465686
-            ],
-            [
-              1500048000000,
-              2236.9,
-              2194.9,
-              2257.1,
-              2171.1,
-              4625.61552326
-            ],
+          [
+            1500048000000,
+            2236.9,
+            2194.9,
+            2257.1,
+            2171.1,
+            4625.61552326
           ],
-        }
+        ],
       }
-      const action = {
-       type:"BITFINEX_UPDATE_CANDLE",
-       chanId:27893,
-       data:[
-            [
-              1500051600000,
-              2200.4,
-              2210.7,
-              2216,
-              2175,
-              2242.22567577
-            ],
-       ]
-      }
-      let newState=bitfinex(initialState,action);
-      expect(newState).toEqual(initialState);
-    });
-    it('update should not add/update a candle entry if its channelid is not matching' , () => {
-      const initialState={
-        "candles":{
-          chanId:27893,
-          key:'trade:30m:tETHUSD',
-          data:[
-            [
-              1500055200000,
-              2195.4,
-              2209.7,
-              2215,
-              2174,
-              2241.22567577
-            ],
-            [
-              1500051600000,
-              2194.9,
-              2195.4,
-              2197,
-              2154.1,
-              2707.78465686
-            ],
-            [
-              1500048000000,
-              2236.9,
-              2194.9,
-              2257.1,
-              2171.1,
-              4625.61552326
-            ],
+    }
+    const action = {
+     type:"BITFINEX_UPDATE_CANDLE",
+     chanId:27893,
+     data:[
+            1500058800000,
+            2200.4,
+            2210.7,
+            2216,
+            2175,
+            2242.22567577
+     ],
+    }
+    const expectedState={
+      "candles":{
+        chanId:27893,
+        key:'trade:30m:tETHUSD',
+        data:[
+          [
+            1500058800000,
+            2200.4,
+            2210.7,
+            2216,
+            2175,
+            2242.22567577
           ],
-        }
+          [
+            1500055200000,
+            2195.4,
+            2209.7,
+            2215,
+            2174,
+            2241.22567577
+          ],
+          [
+            1500051600000,
+            2194.9,
+            2195.4,
+            2197,
+            2154.1,
+            2707.78465686
+          ],
+          [
+            1500048000000,
+            2236.9,
+            2194.9,
+            2257.1,
+            2171.1,
+            4625.61552326
+          ],
+        ],
+     }
+    }
+    let newState=bitfinex(initialState,action);
+    expect(newState.candles.data).toEqual(expectedState.candles.data);
+  });
+  it('update should not add/update a candle entry if its timestamp is less than highest timestamp in available candle data' , () => {
+    const initialState={
+      "candles":{
+        chanId:27893,
+        key:'trade:30m:tETHUSD',
+        data:[
+          [
+            1500055200000,
+            2195.4,
+            2209.7,
+            2215,
+            2174,
+            2241.22567577
+          ],
+          [
+            1500051600000,
+            2194.9,
+            2195.4,
+            2197,
+            2154.1,
+            2707.78465686
+          ],
+          [
+            1500048000000,
+            2236.9,
+            2194.9,
+            2257.1,
+            2171.1,
+            4625.61552326
+          ],
+        ],
       }
-      const action = {
-       type:"BITFINEX_UPDATE_CANDLE",
-       chanId:27894,
-       data:[
-            [
-              1500058800000,
-              2200.4,
-              2210.7,
-              2216,
-              2175,
-              2242.22567577
-            ],
-       ]
+    }
+    const action = {
+     type:"BITFINEX_UPDATE_CANDLE",
+     chanId:27893,
+     data:[
+            1500051600000,
+            2200.4,
+            2210.7,
+            2216,
+            2175,
+            2242.22567577
+     ]
+    }
+    let newState=bitfinex(initialState,action);
+    expect(newState).toEqual(initialState);
+  });
+  it('update should not add/update a candle entry if its channelid is not matching' , () => {
+    const initialState={
+      "candles":{
+        chanId:27893,
+        key:'trade:30m:tETHUSD',
+        data:[
+          [
+            1500055200000,
+            2195.4,
+            2209.7,
+            2215,
+            2174,
+            2241.22567577
+          ],
+          [
+            1500051600000,
+            2194.9,
+            2195.4,
+            2197,
+            2154.1,
+            2707.78465686
+          ],
+          [
+            1500048000000,
+            2236.9,
+            2194.9,
+            2257.1,
+            2171.1,
+            4625.61552326
+          ],
+        ],
       }
-      let newState=bitfinex(initialState,action);
-      expect(newState).toEqual(initialState);
-    });
+    }
+    const action = {
+     type:"BITFINEX_UPDATE_CANDLE",
+     chanId:27894,
+     data:[
+            1500058800000,
+            2200.4,
+            2210.7,
+            2216,
+            2175,
+            2242.22567577
+     ]
+    }
+    let newState=bitfinex(initialState,action);
+    expect(newState).toEqual(initialState);
+  });
 });
