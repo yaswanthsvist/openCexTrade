@@ -13,9 +13,9 @@
 * ping server in different intervels
 * UI sliders/ drop down for selecting different trade options.
 * ~~generate barcode qr for bitcoin,Ethereum Address for depositing.~~
-* ~~Scan barcode qr for reading API Secret from CEX.IO Profile.~~(scanable QR code in Website is for only Official App).
-* Websocket integration for real time updates for latest bids,latest price.
-* combine bitfinex & CEX.io data in single marketDepth/line charts.
+* ~~Scan barcode qr for reading API Secret from CEX.IO Profile.~~ (scanable QR code in Website is for only Official App).
+* ~~Websocket integration for real time updates for candle data,~~ latest bids,latest price.
+* ~~combine bitfinex & CEX.io data in single marketDepth/line charts.~~(CEX.io websocket event for market data is depreciated).
 * ~~Charts with ticks,texts,background colors~~
 * alerts for price hikes and dips.
 * performance optimization.
