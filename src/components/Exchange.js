@@ -8,6 +8,7 @@ import {connect} from 'react-redux'
 import DropDown from './ui/DropDown';
 class Exchange extends React.Component{
   constructor(props){
+    console.log("Exchange");
     super(props)
     this.state={sampleRatio:1};
     this.showHourly=this.showHourly.bind(this);
@@ -58,7 +59,7 @@ class Exchange extends React.Component{
     console.log(timeType);
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
     return(
-      <View>
+      <View style={{backgroundColor:"#222"}}>
         <View style={{height:20,backgroundColor:'#000'}}>
         </View>
         <DropDown data={this.symbolPairs}></DropDown>
