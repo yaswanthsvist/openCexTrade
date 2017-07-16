@@ -18,8 +18,8 @@ const checkCross = (msg) => {
     console.log( "bid(" + bid + ")>=ask(" + ask + ")");
   }
 }
-const handleBook =(msg)=> {
-    if(msg[0]!=bookChannelid){
+const handleBook =(msg,dispatch,chanId)=> {
+    if(msg[0]!=chanId){
       return;
     }
     if (BOOK.mcnt === 0) {
@@ -58,6 +58,7 @@ const handleBook =(msg)=> {
     }
 
     let sides=['bids', 'asks'];
+    let presentableData={};
     sides.forEach( (side)=>{
       let sbook = BOOK[side]
       let bprices = Object.keys(sbook)
@@ -70,19 +71,18 @@ const handleBook =(msg)=> {
         }
       })
 
-      BOOK.psnap[side] = prices
+      BOOK.psnap[side] = prices;
       //console.log("num price points", side, prices.length)
 //      console.log(prices.map((price)=>BOOK[side][price].amount));
       let list=[],amount=0;
       for (let price of prices){
         list.push([price, ( amount += BOOK[side][price].amount ) ] );
       };
-      console.log(list);
-
+      presentableData[side]=list;
     });
     BOOK.mcnt++
-
     checkCross(msg)
+    dispatch( bitfinexActions.updateBooksData({presentableData,chanId}) );
   }
 
 
@@ -97,10 +97,12 @@ class Trade extends React.Component{
           dispatch( bitfinexActions.subscribeToCandles( msg ) );
         }
         if( msg.channel == "book" ){
-          bookChannelid=msg.chanId;
+          console.log(msg.channel);
+          dispatch( bitfinexActions.subscribedToBook( msg ) );
         }
       } else if( Array.isArray( msg ) ){
-        handleBook(msg);
+        handleBook(msg,dispatch,bitfinex.books.chanId);
+        return;
         const data = msg[1];
         const chanId = msg[0];
         if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
@@ -120,12 +122,20 @@ class Trade extends React.Component{
                 "channel": "candles",
                 "key": "trade:1m:tBTCUSD"
               });
-        wsBitfinex.send({ event: "subscribe", channel: "book", pair:"tBTCUSD" , prec: "P0","freq": "F3", "len": 25 });
+        wsBitfinex.send({
+            event: "subscribe",
+            channel: "book",
+            pair:"tBTCUSD" ,
+            prec: "P0",
+            "freq": "F3",
+            "len": 25
+          });
       }
     );
   }
   componentWillReceiveProps(nextProps) {
     const {data}=this.props.bitfinex.candles;
+    console.log(nextProps.bitfinex.books);
     if(
       nextProps.bitfinex.candles.data!=null &&
       data != null &&

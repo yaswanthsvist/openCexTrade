@@ -19,3 +19,16 @@ export const subscribeToCandles=({key,chanId})=>{
     key,
   }
 }
+export const subscribedToBook=(evt)=>{
+  return {
+    type:"BITFINEX_SUBSCRIBED_BOOK",
+    ...evt,
+  }
+}
+export const updateBooksData=({presentableData,chanId})=>{
+  return {
+    type:"BITFINEX_UPDATE_BOOK",
+    presentableData,
+    chanId,
+  }
+}

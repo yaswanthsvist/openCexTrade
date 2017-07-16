@@ -11,10 +11,19 @@ const expectedDefaultState={
 }
 const defbitfinexData={
    "candles":{
-     key:'trade:1m:tETHUSD',
+     key:'trade:1m:tBTCUSD',
      data:null,
      chanId:null,
+  },
+  "books":{
+    symbol:'tBTCUSD',
+    presentableData:{},
+    chanId:null,
+    prec: "P0",
+    "freq": "F3",
+    "len": 25,
   }
+
 };
 
 describe("public_data",()=>{
@@ -71,7 +80,7 @@ describe("public_data",()=>{
     expect(newState.order_book).toEqual(action.order_book);
   });
 });
-describe( 'Bitfinex  web Socket test cases',()=>{
+describe( 'Bitfinex candle  web Socket test cases',()=>{
   it('subscribed' , () => {
     const action = {
      type:"BITFINEX_SUBSCRIBED_CANDLE",
@@ -79,6 +88,7 @@ describe( 'Bitfinex  web Socket test cases',()=>{
      chanId:54123,
     }
     const expectedState={
+      ...defbitfinexData,
       "candles":{
         key:'trade:1h:tETHUSD',
         data:[],
@@ -447,3 +457,121 @@ describe( 'Bitfinex  web Socket test cases',()=>{
     expect(newState).toEqual(initialState);
   });
 });
+describe( 'Bitfinex book  web Socket test cases',()=>{
+  it('subscribed' , () => {
+    const action = {
+     type:"BITFINEX_SUBSCRIBED_BOOK",
+     chanId:54123,
+     symbol:'tBTCUSD',
+     prec: "P1",
+     "freq": "F2",
+     "len": 50,
+    }
+    const expectedState={
+      ...defbitfinexData,
+      "books":{
+        presentableData:{},
+        chanId:54123,
+        symbol:'tBTCUSD',
+        prec: "P1",
+        "freq": "F2",
+        "len": 50,
+     }
+    }
+    let newState=bitfinex(undefined,action);
+    expect(newState).toEqual(expectedState);
+  })
+  it('unsubscribe' , () => {
+    const action = {
+     type:"BITFINEX_UNSUBSCRIBED_BOOK",
+    }
+    const initialState={
+      ...defbitfinexData,
+      books:{
+        presentableData:{
+          bids:[
+          [1,2],
+          [2,5],
+          [2.5,88]
+        ],
+        asks:[
+          [1,2],
+          [2,5],
+          [2.5,88]
+        ]
+      },
+        chanId:54123,
+        symbol:'tBTCUSD',
+        prec: "P1",
+        "freq": "F2",
+        "len": 50,
+      }
+    }
+    const expectedState={
+      ...defbitfinexData,
+      "books":{
+        presentableData:{},
+        chanId:null,
+        symbol:'tBTCUSD',
+        prec: "P1",
+        "freq": "F2",
+        "len": 50,
+      }
+    }
+    let newState=bitfinex(initialState,action);
+    expect(newState).toEqual(expectedState);
+  });
+  it('initialize' , () => {
+    const initialState={
+      ...defbitfinexData,
+      "books":{
+        presentableData:{},
+        chanId:27893,
+        symbol:'tBTCUSD',
+        prec: "P1",
+        "freq": "F2",
+        "len": 50,
+      }
+    }
+    const action = {
+       type:"BITFINEX_UPDATE_BOOK",
+       chanId:27893,
+       presentableData:{
+         bids:[
+           [1,2],
+           [2,5],
+           [2.5,88]
+         ],
+         asks:[
+           [1,2],
+           [2,5],
+           [2.5,88]
+         ]
+       },
+    }
+    const expectedState={
+      ...defbitfinexData,
+      "books":{
+        chanId:27893,
+        presentableData:{
+          bids:[
+            [1,2],
+            [2,5],
+            [2.5,88]
+          ],
+          asks:[
+            [1,2],
+            [2,5],
+            [2.5,88]
+          ]
+        },
+        symbol:'tBTCUSD',
+        prec: "P1",
+        "freq": "F2",
+        "len": 50,
+     }
+    }
+    let newState=bitfinex(initialState,action);
+    expect(newState).toEqual(expectedState);
+  })
+  });

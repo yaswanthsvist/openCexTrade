@@ -35,6 +35,14 @@ const defBitfinexState={
     key:'trade:1m:tBTCUSD',
     data:null,
     chanId:null,
+ },
+ "books":{
+   symbol:'tBTCUSD',
+   presentableData:{},
+   chanId:null,
+   prec: "P0",
+   "freq": "F3",
+   "len": 25,
  }
 }
 const candles=(state=defBitfinexState.candles,action)=>{
@@ -80,6 +88,36 @@ const candles=(state=defBitfinexState.candles,action)=>{
     return state;
   }
 }
+const books=(state=defBitfinexState.books,action)=>{
+  switch (action.type) {
+    case "BITFINEX_SUBSCRIBED_BOOK":
+          {
+            const {chanId,freq,prec,len,symbol}=action;
+            return {
+              presentableData:{},
+              chanId,freq,prec,len,symbol,
+            };
+          }
+      break;
+    case "BITFINEX_UNSUBSCRIBED_BOOK":
+      return {
+          ...state,
+          presentableData:{},
+          chanId:null,
+      };
+      break;
+    case "BITFINEX_UPDATE_BOOK":
+        if(state.chanId!=action.chanId){
+        return state;
+      }
+      return {
+          ...state,
+          presentableData:{...action.presentableData},
+      }
+    default:
+    return state;
+  }
+}
 export const bitfinex=(state=defBitfinexState,action)=>{
   switch (action.type) {
     case "BITFINEX_SUBSCRIBED_CANDLE":
@@ -90,6 +128,15 @@ export const bitfinex=(state=defBitfinexState,action)=>{
           ...state,
           candles:candles(state.candles,action),
         }
+        break;
+    case "BITFINEX_SUBSCRIBED_BOOK":
+    case "BITFINEX_UNSUBSCRIBED_BOOK":
+    case "BITFINEX_UPDATE_BOOK":
+        return {
+          ...state,
+          books:books(state.books,action),
+        }
+        break;
     default:
       return state;
   }
