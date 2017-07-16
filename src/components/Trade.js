@@ -72,9 +72,16 @@ const handleBook =(msg)=> {
 
       BOOK.psnap[side] = prices
       //console.log("num price points", side, prices.length)
+//      console.log(prices.map((price)=>BOOK[side][price].amount));
+      let list=[],amount=0;
+      for (let price of prices){
+        list.push([price, ( amount += BOOK[side][price].amount ) ] );
+      };
+      console.log(list);
+
     });
-    console.log(BOOK.psnap);
     BOOK.mcnt++
+
     checkCross(msg)
   }
 
@@ -113,7 +120,7 @@ class Trade extends React.Component{
                 "channel": "candles",
                 "key": "trade:1m:tBTCUSD"
               });
-        wsBitfinex.send({ event: "subscribe", channel: "book", pair:"tBTCUSD" , prec: "P0","freq": "F0", "len": 25 });
+        wsBitfinex.send({ event: "subscribe", channel: "book", pair:"tBTCUSD" , prec: "P0","freq": "F3", "len": 25 });
       }
     );
   }
