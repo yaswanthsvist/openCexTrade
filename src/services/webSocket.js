@@ -12,7 +12,7 @@ wsBitfinex.init=(listners)=>{
       socket.onmessage=(evt)=>{
 //        console.log("socket message with Bitfinex",evt.data);
         try{
-          wsBitfinex.listners.forEach(listner=>listner(evt));
+          wsBitfinex.listners.forEach(listner=>listner(JSON.parse(evt.data)));
         }catch(err){
           console.log(err);
         }

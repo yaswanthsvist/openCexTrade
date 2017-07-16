@@ -3,17 +3,97 @@ import {connect} from 'react-redux';
 import * as bitfinexActions from './../actions/bitfinex';
 import { StyleSheet, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import wsBitfinex from './../services/webSocket';
+
+let BOOK = {
+  bids : {},
+  asks : {},
+  psnap : {},
+  mcnt : 0,
+}
+let bookChannelid=null;
+const checkCross = (msg) => {
+  let bid = BOOK.psnap.bids[0]
+  let ask = BOOK.psnap.asks[0]
+  if (bid >= ask) {
+    console.log( "bid(" + bid + ")>=ask(" + ask + ")");
+  }
+}
+const handleBook =(msg)=> {
+    if(msg[0]!=bookChannelid){
+      return;
+    }
+    if (BOOK.mcnt === 0) {
+      msg[1].forEach( (pp)=>{
+        pp = { price: pp[0], cnt: pp[1], amount: pp[2] }
+        const side = pp.amount >= 0 ? 'bids' : 'asks'
+        pp.amount = Math.abs(pp.amount)
+        BOOK[side][pp.price] = pp
+      })
+    }
+    else {
+      let pp = { price: msg[1], cnt: msg[2], amount: msg[3], ix: msg[4] }
+      if (!pp.cnt) {
+        let found = true
+        if (pp.amount > 0) {
+          if (BOOK['bids'][pp.price]) {
+            delete BOOK['bids'][pp.price]
+          } else {
+            found = false
+          }
+        } else if (pp.amount < 0) {
+          if (BOOK['asks'][pp.price]) {
+            delete BOOK['asks'][pp.price]
+          } else {
+            found = false
+          }
+        }
+        if (!found) {
+          console.log(JSON.stringify(pp) + " BOOK delete fail side not found\n");
+        }
+      } else {
+        let side = pp.amount >= 0 ? 'bids' : 'asks'
+        pp.amount = Math.abs(pp.amount)
+        BOOK[side][pp.price] = pp
+      }
+    }
+
+    let sides=['bids', 'asks'];
+    sides.forEach( (side)=>{
+      let sbook = BOOK[side]
+      let bprices = Object.keys(sbook)
+
+      let prices = bprices.sort(function(a, b) {
+        if (side === 'bids') {
+          return +a >= +b ? -1 : 1
+        } else {
+          return +a <= +b ? -1 : 1
+        }
+      })
+
+      BOOK.psnap[side] = prices
+      //console.log("num price points", side, prices.length)
+    });
+    console.log(BOOK.psnap);
+    BOOK.mcnt++
+    checkCross(msg)
+  }
+
+
+
 class Trade extends React.Component{
   constructor(props){
     super(props)
-    const candleChannleHandler=(evt)=>{
-      const msg=JSON.parse(evt.data);
+    const candleChannleHandler=(msg)=>{
       const {bitfinex,dispatch}=this.props;
       if( !Array.isArray( msg ) && msg.event == "subscribed" ){
         if( msg.channel == "candles" ){
           dispatch( bitfinexActions.subscribeToCandles( msg ) );
         }
+        if( msg.channel == "book" ){
+          bookChannelid=msg.chanId;
+        }
       } else if( Array.isArray( msg ) ){
+        handleBook(msg);
         const data = msg[1];
         const chanId = msg[0];
         if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
@@ -27,11 +107,15 @@ class Trade extends React.Component{
     }
     this.state={};
     wsBitfinex.addListener(candleChannleHandler);
-    wsBitfinex.init().then(()=>wsBitfinex.send({
-            "event": "subscribe",
-            "channel": "candles",
-            "key": "trade:1m:tBTCUSD"
-          }));
+    wsBitfinex.init().then(()=>{
+        wsBitfinex.send({
+                "event": "subscribe",
+                "channel": "candles",
+                "key": "trade:1m:tBTCUSD"
+              });
+        wsBitfinex.send({ event: "subscribe", channel: "book", pair:"tBTCUSD" , prec: "P0","freq": "F0", "len": 25 });
+      }
+    );
   }
   componentWillReceiveProps(nextProps) {
     const {data}=this.props.bitfinex.candles;
@@ -57,6 +141,9 @@ class Trade extends React.Component{
     )
   }
 }
+
+
+
 
 const mapStateToProps = state => ({
   bitfinex:state.bitfinex,
