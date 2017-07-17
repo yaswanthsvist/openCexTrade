@@ -7,14 +7,18 @@
 * ~~Initail route navigation setup using React-navigation Library.~~
 * ~~Line chart market like tradingview~~
 * Bar charts for latest bids.
-* candle sticks charts to show high,low,open,close prices.(Will use Bitfinex Candle charts instead of CEX.io because CEX.io is not providing the latest data).
+* ~~Rendering Market Depth chart with real time bitfinex webSocket data.~~
+* candle sticks charts to show high,low,open,close prices.(Will use Bitfinex Candle data instead of CEX.io because CEX.io is not providing the latest data).
 * ~~Redux integration with React-navigation~~.
 * API and UI integration
 * ping server in different intervels
 * UI sliders/ drop down for selecting different trade options.
 * ~~generate barcode qr for bitcoin,Ethereum Address for depositing.~~
 * ~~Scan barcode qr for reading API Secret from CEX.IO Profile.~~ (scanable QR code in Website is for only Official App).
-* ~~Websocket integration for real time updates for candle data,~~ latest bids,latest price.
+* ~~Websocket integration for real time updates for~~
+    1. ~~candle data,~~
+    2. ~~Market Depth.~~ (books)
+    3. latest bids,latest price.
 * ~~combine bitfinex & CEX.io data in single marketDepth/line charts.~~(CEX.io websocket event for market data is depreciated).
 * ~~Charts with ticks,texts,background colors~~
 * alerts for price hikes and dips.
