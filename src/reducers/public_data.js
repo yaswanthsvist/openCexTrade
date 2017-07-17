@@ -41,8 +41,8 @@ const defBitfinexState={
    presentableData:{},
    chanId:null,
    prec: "P0",
-   "freq": "F3",
-   "len": 25,
+   "freq": "F0",
+   "len": 50,
  }
 }
 const candles=(state=defBitfinexState.candles,action)=>{
