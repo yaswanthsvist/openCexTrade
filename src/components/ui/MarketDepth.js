@@ -63,7 +63,7 @@ class MarketDepth extends React.Component{
   constructor( props ){
     super( props )
     this.width = Dimensions.get('window').width-60;
-    const {linesData,hValues,wValues}=generateAxis(this.width,this.width,8);
+    const {linesData,hValues,wValues}=generateAxis(this.width,this.width,6);
     this.axis = linesData;
     this.baseTicks=wValues;
     this.vertiaclTicks=hValues;
@@ -85,8 +85,6 @@ class MarketDepth extends React.Component{
     lineData,
     start,end,
   }){
-    console.log(start);
-    console.log(end);
       const height = this.width;
       const width = this.width;
       const lastDatum = lineData[ lineData.length - 1 ];
@@ -108,8 +106,8 @@ class MarketDepth extends React.Component{
     const tmin = Math.min( ...timeLine );
     const tmax = Math.max( ...timeLine );
     const gapBtwVLines = ( tmax - tmin )/ this.baseTicks.length; //time gap between Vertical Lines
-    this.baseTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*i).toPrecision(8));
-    this.vertiaclTicks=this.vertiaclTicks.map((tick,i)=>(hmin+gapBtwHLines*i).toPrecision(8));
+    this.baseTicks=this.vertiaclTicks.map((tick,i)=>(hmin+gapBtwHLines*i).toPrecision(4));
+    this.vertiaclTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*(i+1)).toPrecision(6));
   }
 
   getlines(){
@@ -122,19 +120,22 @@ class MarketDepth extends React.Component{
     const values = whole.map( item => item[0] );
     const start = Math.min( ...values );//height min
     const end = Math.max( ...values );//height max
-    console.log(start);
-    console.log(end);
-
-    (()=>{
-      const lineData=this.state.data['asks']
-      const asks = this.getPath( { lineData ,start,end} );
-    })();
-    this.asks = `M0 ${ this.width } ` + asks( this.state.data['asks'] ).slice( 1 ) + `L${ this.width } ${ this.width } Z`;
-    (()=>{
-      const lineData=this.state.data['bids']
-      const bids = this.getPath({ lineData: this.state.data['bids'] ,start,end});
-    })();
-    this.bids = `M0 ${ this.width } ` + bids( this.state.data['bids'] ).slice( 1 ) + `L${ this.width } ${ this.width } Z`;
+      let lineData=this.state.data['asks']
+      const asksValues = lineData.map( item => item[0] );
+      const asksStart = Math.min( ...asksValues );//height min
+      const asksEnd = Math.max( ...asksValues );//height max
+      let asksData=[[asksStart,0],...lineData,[end,0]];
+    const asks = this.getPath( { lineData ,start,end} );
+    this.asks = asks( asksData ) + ` Z`;
+      const bidsValues = this.state.data['bids'].map( item => item[0] );
+      const bidsStart = Math.min( ...bidsValues );//height min
+      const bidsEnd = Math.max( ...bidsValues );//height max
+      let bidsData=[ [ bidsEnd , 0 ] , ...this.state.data['bids'] , [ start , 0 ] ];
+    const bids = this.getPath({ lineData: this.state.data['bids'] ,start,end});
+    this.bids = bids( bidsData )+ `  Z`;
+    // console.log(bidsStart,bidsEnd);
+    // console.log(asksStart,asksEnd);
+    // console.log(this.state.data);
   }
   componentWillReceiveProps( nextProps ){
     if( nextProps.data == null || Array.isArray(nextProps.data) ){
@@ -153,6 +154,7 @@ class MarketDepth extends React.Component{
       return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
     }
     const textWidth=this.width/this.baseTicks.length;
+    console.log("rendering MarketDepth");
     return(
       <View style = {styles.chartView}>
         <Surface width = {this.width} height = {this.width}>
@@ -162,7 +164,7 @@ class MarketDepth extends React.Component{
               <Shape
                 d = {d}
                 key={i+'axis'}
-                stroke = '#aaa'
+                stroke = '#ff0b88'
                 strokeWidth = {1}
                 >
               </Shape>
@@ -170,13 +172,13 @@ class MarketDepth extends React.Component{
           }
             <Shape
               d  =  {this.bids}
-              stroke = '#1faa00'
+              fill = '#00adef'
               strokeWidth = {1}
               >
             </Shape>
             <Shape
               d = {this.asks}
-              stroke = '#c300'
+              fill = '#1fd430'
               strokeWidth = {1}
               >
             </Shape>
@@ -184,12 +186,12 @@ class MarketDepth extends React.Component{
         </Surface>
         <View style={{height:60,width:this.width,flexDirection:'row'}}>
           {
-//            this.baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+            this.baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
           }
         </View>
-        <View style={{position : 'absolute',right:0,width:60,height:this.width,flexDirection:'column'}}>
+        <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
           {
-  //          this.vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textWidth}]} key={i+'vTick'} >{tick}</Text>)
+            this.vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textWidth}]} key={i+'vTick'} >{tick}</Text>)
           }
         </View>
       </View>
@@ -208,8 +210,11 @@ const styles = StyleSheet.create({
     height : windowWidth,
   },
   chartView : {
-    backgroundColor : '#c0cfff',
     width : windowWidth,
+    marginTop:60,
+    borderWidth:1,
+    backgroundColor:'#474747',
+    borderColor:'#ff0b88',
     height : windowWidth,
   },
   chartMsg : {
@@ -221,6 +226,6 @@ const styles = StyleSheet.create({
   },
   bTickText : {
     fontSize : 10,
-    color : '#870000',
+    color : '#ffffff',
   },
 })

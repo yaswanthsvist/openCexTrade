@@ -59,9 +59,7 @@ class Exchange extends React.Component{
     console.log(timeType);
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
     return(
-      <View style={{backgroundColor:"#222"}}>
-        <View style={{height:20,backgroundColor:'#000'}}>
-        </View>
+      <View>
         <DropDown data={this.symbolPairs}></DropDown>
         <ScrollView>
           <View style={{height:500}}>

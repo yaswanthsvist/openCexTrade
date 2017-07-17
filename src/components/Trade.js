@@ -20,9 +20,10 @@ const checkCross = (msg) => {
   }
 }
 const handleBook =(msg,dispatch,chanId)=> {
-    if(msg[0]!=chanId){
+    if(msg[0]!=chanId||msg[1]=='hb'){
       return;
     }
+  //  console.log(msg[1]);
     if (BOOK.mcnt === 0) {
       msg[1].forEach( (pp)=>{
         pp = { price: pp[0], cnt: pp[1], amount: pp[2] }
@@ -32,7 +33,7 @@ const handleBook =(msg,dispatch,chanId)=> {
       })
     }
     else {
-      let pp = { price: msg[1], cnt: msg[2], amount: msg[3], ix: msg[4] }
+      let pp = { price: msg[1][0], cnt: msg[1][1], amount: msg[1][2] }
       if (!pp.cnt) {
         let found = true
         if (pp.amount > 0) {
@@ -136,13 +137,13 @@ class Trade extends React.Component{
   }
   componentWillReceiveProps(nextProps) {
     const {data}=this.props.bitfinex.candles;
-    console.log(nextProps.bitfinex.books);
+  //  console.log(nextProps.bitfinex.books);
     if(
       nextProps.bitfinex.candles.data!=null &&
       data != null &&
       data.length != nextProps.bitfinex.candles.data.length
     ){
-      console.log(nextProps.bitfinex.candles.data[0]);
+//      console.log(nextProps.bitfinex.candles.data[0]);
     }
   }
   static navigationOptions={

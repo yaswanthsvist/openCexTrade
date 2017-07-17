@@ -29,7 +29,7 @@ function createScaleX(start, end, width) {
  */
 function createScaleY(minY, maxY, height) {
   return d3.scale.scaleLinear()
-    .domain([minY, maxY]).nice()
+    .domain([minY, maxY])
     // We invert our range so it outputs using the axis that React uses.
     .range([height, 0]);
 
