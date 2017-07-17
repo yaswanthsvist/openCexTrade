@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import * as bitfinexActions from './../actions/bitfinex';
 import { StyleSheet, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import wsBitfinex from './../services/webSocket';
+import MarketDepth from './ui/MarketDepth';
 
 let BOOK = {
   bids : {},
@@ -150,9 +151,10 @@ class Trade extends React.Component{
     tabBarLabel: 'Trade',
   }
   render(){
+    const {presentableData}=this.props.bitfinex.books;
     return(
       <View>
-        {/*<MarketDepth></MarketDepth>*/}
+        <MarketDepth data={presentableData}></MarketDepth>
         <Text>Trade here</Text>
       </View>
     )
