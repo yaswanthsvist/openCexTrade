@@ -25,10 +25,11 @@ export const subscribedToBook=(evt)=>{
     ...evt,
   }
 }
-export const updateBooksData=({presentableData,chanId})=>{
+export const updateBooksData=({presentableData,barsData,chanId})=>{
   return {
     type:"BITFINEX_UPDATE_BOOK",
     presentableData,
+    barsData,
     chanId,
   }
 }
