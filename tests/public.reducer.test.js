@@ -18,10 +18,11 @@ const defbitfinexData={
   "books":{
     symbol:'tBTCUSD',
     presentableData:{},
+    barsData:{},
     chanId:null,
     prec: "P0",
-    "freq": "F3",
-    "len": 25,
+    "freq": "F0",
+    "len": 50,
   }
 
 };
@@ -471,6 +472,7 @@ describe( 'Bitfinex book  web Socket test cases',()=>{
       ...defbitfinexData,
       "books":{
         presentableData:{},
+        barsData:{},
         chanId:54123,
         symbol:'tBTCUSD',
         prec: "P1",
@@ -500,6 +502,18 @@ describe( 'Bitfinex book  web Socket test cases',()=>{
           [2.5,88]
         ]
       },
+      barsData:{
+          bids:[
+          [1,2],
+          [2,5],
+          [2.5,88]
+        ],
+        asks:[
+          [1,2],
+          [2,5],
+          [2.5,88]
+        ]
+      },
         chanId:54123,
         symbol:'tBTCUSD',
         prec: "P1",
@@ -511,6 +525,7 @@ describe( 'Bitfinex book  web Socket test cases',()=>{
       ...defbitfinexData,
       "books":{
         presentableData:{},
+        barsData:{},
         chanId:null,
         symbol:'tBTCUSD',
         prec: "P1",
@@ -526,6 +541,7 @@ describe( 'Bitfinex book  web Socket test cases',()=>{
       ...defbitfinexData,
       "books":{
         presentableData:{},
+        barsData:{},
         chanId:27893,
         symbol:'tBTCUSD',
         prec: "P1",
@@ -548,12 +564,36 @@ describe( 'Bitfinex book  web Socket test cases',()=>{
            [2.5,88]
          ]
        },
+       barsData:{
+         bids:[
+           [1,2],
+           [2,5],
+           [2.5,88]
+         ],
+         asks:[
+           [1,2],
+           [2,5],
+           [2.5,88]
+         ]
+       },
     }
     const expectedState={
       ...defbitfinexData,
       "books":{
         chanId:27893,
         presentableData:{
+          bids:[
+            [1,2],
+            [2,5],
+            [2.5,88]
+          ],
+          asks:[
+            [1,2],
+            [2,5],
+            [2.5,88]
+          ]
+        },
+        barsData:{
           bids:[
             [1,2],
             [2,5],
