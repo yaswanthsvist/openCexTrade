@@ -34,6 +34,9 @@ function createScaleY(minY, maxY, height) {
     .range([height, 0]);
 
 }
+const generateBar=(x,y)=>{
+
+}
 
 const generateAxis = ( width , height , lines = 5 ) => {
   const gapBtwHLines = ( height )/ lines; //gap between horizontal Lines
@@ -90,13 +93,31 @@ const assignStyles=(width,height)=>{
   })
 
 }
+const filterToBars=(data,noOfBars) => {
+  let xvalues=data.map(x=>x[0]);
+  let min=Math.min.apply(null,xvalues);
+  let max=Math.max.apply(null,xvalues);
+  console.log(min,max);
+  gap=(max-min)/(noOfBars-1);
+  filteredArray=[];
+  for(pres=min;pres<= (max);pres=pres+gap){
+    filteredArray.push([
+      pres ,
+       data.filter(x =>( pres <= x[0] && (pres+gap) > x[0] ) )
+        .map(x=>x[1]).reduce((a,b)=>a+b,0)
+     ]);
+  }
+  return filteredArray;
+}
 
-class MarketDepth extends React.Component{
+class BarChart extends React.Component{
   constructor( props ){
     super( props )
     const {width=Dimensions.get('window').width,height=Dimensions.get('window').width}=this.props;
     this.width = width-60;
     this.height = height-30;
+    this.bids=[];
+    this.asks=[];
     this.styles=assignStyles(width,height);
 
     const {linesData,hValues,wValues}=generateAxis(this.width,this.height,6);
@@ -117,7 +138,6 @@ class MarketDepth extends React.Component{
       };
     }
   }
-
   generateTicks(data){
     const values = data.map( item => item[0] );
     const timeLine = data.map( item => item[1] );
@@ -130,13 +150,13 @@ class MarketDepth extends React.Component{
     this.baseTicks=this.vertiaclTicks.map((tick,i)=>(hmin+gapBtwHLines*i).toPrecision(4));
     this.vertiaclTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*(i+1)).toPrecision(6));
   }
-
   getPath({
     lineData,
     start,end,
-    yvalues,
+    yvalues
   }){
       const {height,width} = this;
+      const lastDatum = lineData[ lineData.length - 1 ];
       const allYValues = yvalues;
       const scaleX = createScaleX( start, end , width)
       const extentY = d3Array.extent( allYValues );
@@ -146,6 +166,7 @@ class MarketDepth extends React.Component{
               .y( d => ( scaleY( d[1] ) ) );
   }
 
+
   getlines(){
     if(this.state.data['asks']==undefined){
       return
@@ -153,21 +174,22 @@ class MarketDepth extends React.Component{
     const whole=[ ...this.state.data['asks'] , ...this.state.data['bids'] ];
     this.generateTicks( whole );
 
-    const values = whole.map( item => item[0] );
-    const yvalues = whole.map( item => item[1] );
-    const [start,end] = d3Array.extent(values );
+    const {maxbars=16}=this.props;
 
-    const asksValues = this.state.data['asks'].map( item => item[0] );
-    const asksStart = d3Array.extent(asksValues )[0];
-    let asksData=[[asksStart,0],...this.state.data['asks'],[end,0]];
-    const asks = this.getPath( { lineData:asksData ,start,end,yvalues} );
-    this.asks = asks( asksData ) + ` Z`;
+    let asksData=filterToBars(this.state.data['asks'],maxbars/2);
+    let bidsData=filterToBars(this.state.data['bids'],maxbars/2);
 
-    const bidsValues = this.state.data['bids'].map( item => item[0] );
-    const bidsEnd = d3Array.extent( bidsValues )[1];
-    let bidsData=[ [ bidsEnd , 0 ] , ...this.state.data['bids'] , [ start , 0 ] ];
-    const bids = this.getPath({ lineData:bidsData ,start,end,yvalues});
-    this.bids = bids( bidsData )+ `  Z`;
+    const xvalues = [...asksData,...bidsData].map( item => item[0] );
+    const yvalues =[...asksData,...bidsData].map( item => item[1] );
+    const [start,end] = d3Array.extent(xvalues);//height min
+
+    let barWidth=(asksData[0][0]-asksData[1][0])/5;
+
+    let asksBarData=asksData.map(x=>[ [ x[0]-barWidth , 0 ], [ x[0]-barWidth , x[1] ] , [ x[0]+barWidth , x[1] ] , [ x[0]+barWidth , 0 ] ]);
+    let bidsBarData=bidsData.map(x=>[  [ x[0]-barWidth , 0 ], [ x[0]-barWidth , x[1] ] , [ x[0]+barWidth , x[1] ] , [ x[0]+barWidth , 0 ]  ]);
+
+    this.asks = asksBarData.map(lineData=>( this.getPath( { lineData ,start , end ,yvalues} )(lineData)+ ` Z`) ) ;
+    this.bids = bidsBarData.map(lineData=>( this.getPath( { lineData ,start , end ,yvalues} )(lineData)+ ` Z`) ) ;
   }
   componentWillReceiveProps( nextProps ){
     if( nextProps.data == null || Array.isArray(nextProps.data) ){
@@ -204,18 +226,22 @@ class MarketDepth extends React.Component{
               </Shape>
             ))
           }
-            <Shape
-              d  =  {this.bids}
-              fill = '#00adef'
+          {this.bids.map((bid,i)=>(<Shape
+              d  =  {bid}
+              key={i+'bidsBar'}
+              fill = 'rgb(0, 173, 239,0.8)'
               strokeWidth = {1}
               >
-            </Shape>
-            <Shape
-              d = {this.asks}
-              fill = '#1fd430'
+            </Shape>))
+          }
+          {this.asks.map((ask,i)=>(<Shape
+              d = {ask}
+              fill = 'rgba(31, 212, 48,0.8)'
+              key={i+'asksBar'}
               strokeWidth = {1}
               >
-            </Shape>
+              </Shape>))
+            }
           </Group>
         </Surface>
         <View style={{height:60,width:width,flexDirection:'row'}}>
@@ -232,4 +258,4 @@ class MarketDepth extends React.Component{
     )
   }
 }
-export default MarketDepth;
+export default BarChart;

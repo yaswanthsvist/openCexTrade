@@ -4,6 +4,7 @@ import * as bitfinexActions from './../actions/bitfinex';
 import { StyleSheet,Dimensions, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import wsBitfinex from './../services/webSocket';
 import MarketDepth from './ui/MarketDepth';
+import BarChart from './ui/BarChart';
 
 let BOOK = {
   bids : {},
@@ -60,7 +61,7 @@ const handleBook =(msg,dispatch,chanId)=> {
     }
 
     let sides=['bids', 'asks'];
-    let presentableData={};
+    let presentableData={},barsData={};
     sides.forEach( (side)=>{
       let sbook = BOOK[side]
       let bprices = Object.keys(sbook)
@@ -75,16 +76,16 @@ const handleBook =(msg,dispatch,chanId)=> {
 
       BOOK.psnap[side] = prices;
       //console.log("num price points", side, prices.length)
-//      console.log(prices.map((price)=>BOOK[side][price].amount));
       let list=[],amount=0;
       for (let price of prices){
         list.push([price, ( amount += BOOK[side][price].amount ) ] );
       };
       presentableData[side]=list;
+      barsData[side]=prices.map(price=>[price,BOOK[side][price].amount]);
     });
-    BOOK.mcnt++
+    BOOK.mcnt++;
     checkCross(msg)
-    dispatch( bitfinexActions.updateBooksData({presentableData,chanId}) );
+    dispatch( bitfinexActions.updateBooksData({presentableData,barsData,chanId}) );
   }
 
 
@@ -137,7 +138,6 @@ class Trade extends React.Component{
   }
   componentWillReceiveProps(nextProps) {
     const {data}=this.props.bitfinex.candles;
-  //  console.log(nextProps.bitfinex.books);
     if(
       nextProps.bitfinex.candles.data!=null &&
       data != null &&
@@ -152,10 +152,11 @@ class Trade extends React.Component{
     tabBarLabel: 'Trade',
   }
   render(){
-    const {presentableData}=this.props.bitfinex.books;
+    const {presentableData,barsData}=this.props.bitfinex.books;
     return(
       <View>
         <MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={presentableData}></MarketDepth>
+        <BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={barsData}></BarChart>
         <Text>Trade here</Text>
       </View>
     )
