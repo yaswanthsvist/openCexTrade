@@ -1,4 +1,7 @@
 {
   "name": "openCexTrade",
-  "displayName": "openCexTrade"
+  "displayName": "openCexTrade",
+  "expo": {
+    "sdkVersion": "18.0.0"
+  }  
 }
