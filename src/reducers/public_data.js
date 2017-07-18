@@ -39,6 +39,7 @@ const defBitfinexState={
  "books":{
    symbol:'tBTCUSD',
    presentableData:{},
+   barsData:{},
    chanId:null,
    prec: "P0",
    "freq": "F0",
@@ -95,6 +96,7 @@ const books=(state=defBitfinexState.books,action)=>{
             const {chanId,freq,prec,len,symbol}=action;
             return {
               presentableData:{},
+              barsData:{},
               chanId,freq,prec,len,symbol,
             };
           }
@@ -103,16 +105,18 @@ const books=(state=defBitfinexState.books,action)=>{
       return {
           ...state,
           presentableData:{},
+          barsData:{},
           chanId:null,
       };
       break;
     case "BITFINEX_UPDATE_BOOK":
-        if(state.chanId!=action.chanId){
+      if(state.chanId!=action.chanId){
         return state;
       }
       return {
           ...state,
           presentableData:{...action.presentableData},
+          barsData:{...action.barsData},
       }
     default:
     return state;
