@@ -59,11 +59,47 @@ const generateAxis = ( width , height , lines = 5 ) => {
  * @param {number} scale to scale y axis points.
  */
 
+const assignStyles=(width,height)=>{
+  return StyleSheet.create({
+    chartMsgView : {
+      flexDirection : "row",
+      alignItems : 'center',
+      backgroundColor : '#448aff',
+      width,
+      height,
+    },
+    chartView : {
+      marginTop:60,
+      borderWidth:1,
+      backgroundColor:'#474747',
+      borderColor:'#ff0b88',
+      width,
+      height,
+    },
+    chartMsg : {
+      color : '#eee',
+      textAlign : 'center',
+      fontSize : 18,
+      fontWeight : 'bold',
+      width,
+    },
+    bTickText : {
+      fontSize : 10,
+      color : '#ffffff',
+    },
+  })
+
+}
+
 class MarketDepth extends React.Component{
   constructor( props ){
     super( props )
-    this.width = Dimensions.get('window').width-60;
-    const {linesData,hValues,wValues}=generateAxis(this.width,this.width,6);
+    const {width=Dimensions.get('window').width,height=Dimensions.get('window').width}=this.props;
+    this.width = width-60;
+    this.height = height-30;
+    this.styles=assignStyles(width,height);
+
+    const {linesData,hValues,wValues}=generateAxis(this.width,this.height,6);
     this.axis = linesData;
     this.baseTicks=wValues;
     this.vertiaclTicks=hValues;
@@ -85,13 +121,12 @@ class MarketDepth extends React.Component{
     lineData,
     start,end,
   }){
-      const height = this.width;
-      const width = this.width;
+      const {height,width} = this;
       const lastDatum = lineData[ lineData.length - 1 ];
       const allYValues = lineData.map(pair=>pair[1]);
       const scaleX = createScaleX( start, end , width)
       const extentY = d3Array.extent( allYValues );
-      const scaleY = createScaleY( extentY[0] , extentY[1] , width );
+      const scaleY = createScaleY( extentY[0] , extentY[1] , height );
       return d3.shape.line()
               .x( d => scaleX( d[0] ) )
               .y( d => ( scaleY( d[1] ) ) );
@@ -150,14 +185,16 @@ class MarketDepth extends React.Component{
   }
   render(){
     this.getlines();
+    const {styles,width,height,baseTicks,vertiaclTicks}=this;
     if( this.state.data == null ){
       return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
     }
-    const textWidth=this.width/this.baseTicks.length;
+    const textWidth=width/baseTicks.length;
+    const textHeight=height/vertiaclTicks.length;
     console.log("rendering MarketDepth");
     return(
       <View style = {styles.chartView}>
-        <Surface width = {this.width} height = {this.width}>
+        <Surface width = {width} height = {height}>
           <Group x = {0} y = {0}>
           {
             this.axis.map((d,i)=>(
@@ -184,14 +221,14 @@ class MarketDepth extends React.Component{
             </Shape>
           </Group>
         </Surface>
-        <View style={{height:60,width:this.width,flexDirection:'row'}}>
+        <View style={{height:60,width:width,flexDirection:'row'}}>
           {
-            this.baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+            baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
           }
         </View>
         <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
           {
-            this.vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textWidth}]} key={i+'vTick'} >{tick}</Text>)
+            vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textHeight}]} key={i+'vTick'} >{tick}</Text>)
           }
         </View>
       </View>
@@ -201,31 +238,3 @@ class MarketDepth extends React.Component{
 export default MarketDepth;
 
 const windowWidth = Dimensions.get('window').width;
-const styles = StyleSheet.create({
-  chartMsgView : {
-    flexDirection : "row",
-    alignItems : 'center',
-    backgroundColor : '#448aff',
-    width : windowWidth,
-    height : windowWidth,
-  },
-  chartView : {
-    width : windowWidth,
-    marginTop:60,
-    borderWidth:1,
-    backgroundColor:'#474747',
-    borderColor:'#ff0b88',
-    height : windowWidth,
-  },
-  chartMsg : {
-    width : windowWidth,
-    color : '#eee',
-    textAlign : 'center',
-    fontSize : 18,
-    fontWeight : 'bold',
-  },
-  bTickText : {
-    fontSize : 10,
-    color : '#ffffff',
-  },
-})
