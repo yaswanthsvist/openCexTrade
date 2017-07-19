@@ -12,7 +12,7 @@ const expectedDefaultState={
 const defbitfinexData={
    "candles":{
      key:'trade:1m:tBTCUSD',
-     data:null,
+     data:[],
      chanId:null,
   },
   "books":{
@@ -133,12 +133,12 @@ describe( 'Bitfinex candle  web Socket test cases',()=>{
      chanId:27893,
      data:[
           [
-            1500055200000,
-            2195.4,
-            2209.7,
-            2215,
-            2174,
-            2241.22567577
+            1500055200000, //time stamp
+            2195.4 ,       //open
+            2209.7 ,       //close
+            2215 ,         //high
+            2174 ,         //low
+            2241.22567577  // volume
           ],
           [
             1500051600000,

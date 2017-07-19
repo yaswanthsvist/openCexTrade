@@ -33,7 +33,7 @@ const public_data=(state=defState,action)=>{
 const defBitfinexState={
   "candles":{
     key:'trade:1m:tBTCUSD',
-    data:null,
+    data:[],
     chanId:null,
  },
  "books":{
