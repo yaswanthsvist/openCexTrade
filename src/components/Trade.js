@@ -5,6 +5,7 @@ import { StyleSheet,Dimensions, Text,Button, View,ScrollView,StatusBar,Image } f
 import wsBitfinex from './../services/webSocket';
 import MarketDepth from './ui/MarketDepth';
 import BarChart from './ui/BarChart';
+import CandleChart from './ui/CandleChart';
 
 let BOOK = {
   bids : {},
@@ -105,7 +106,6 @@ class Trade extends React.Component{
         }
       } else if( Array.isArray( msg ) ){
         handleBook(msg,dispatch,bitfinex.books.chanId);
-        return;
         const data = msg[1];
         const chanId = msg[0];
         if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
@@ -152,11 +152,15 @@ class Trade extends React.Component{
     tabBarLabel: 'Trade',
   }
   render(){
-    const {presentableData,barsData}=this.props.bitfinex.books;
+    const { presentableData , barsData }=this.props.bitfinex.books;
+    const {data}=this.props.bitfinex.candles;
     return(
       <View>
+        {/*
         <MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={presentableData}></MarketDepth>
         <BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={barsData}></BarChart>
+        */}
+        <CandleChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={data}></CandleChart>
         <Text>Trade here</Text>
       </View>
     )

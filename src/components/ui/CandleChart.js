@@ -34,9 +34,8 @@ function createScaleY(minY, maxY, height) {
     .range([height, 0]);
 
 }
-const generateBar=(x,y)=>{
 
-}
+
 
 const generateAxis = ( width , height , lines = 5 ) => {
   const gapBtwHLines = ( height )/ lines; //gap between horizontal Lines
@@ -49,8 +48,8 @@ const generateAxis = ( width , height , lines = 5 ) => {
     const wValue =gapBtwVLines*i ;
     hValues.push(hValue);
     wValues.push(wValue);
-    linesData.push(`M0,${hValue}L${width},${hValue}`);//height will be constant
-    linesData.push(`M${wValue},0L${wValue},${height}`);//height will be constant
+    linesData.push(`M0,${hValue}L${width},${hValue}`);//height will be constant ( horizontal axis)
+    linesData.push(`M${wValue},0L${wValue},${height}`);//height will be constant ( verical axis)
   }
   return {linesData,hValues,wValues};
 }
@@ -91,15 +90,7 @@ const assignStyles=(width,height)=>{
       color : '#ffffff',
     },
   })
-
 }
-const generateEdges=(x,barWidth)=>([
-  [ x[0]-barWidth , 0 ],
-  [ x[0]-barWidth , x[1] ] ,
-  [ x[0]+barWidth , x[1] ] ,
-  [ x[0]+barWidth , 0 ]
-]);
-
 const filterToBars=(data,noOfBars) => {
   let xvalues=data.map(x=>x[0]);
   let min=Math.min.apply(null,xvalues);
@@ -117,7 +108,7 @@ const filterToBars=(data,noOfBars) => {
   return filteredArray;
 }
 
-class BarChart extends React.Component{
+class CandleChart extends React.Component{
   constructor( props ){
     super( props )
     const {width=Dimensions.get('window').width,height=Dimensions.get('window').width}=this.props;
@@ -129,21 +120,12 @@ class BarChart extends React.Component{
 
     const {linesData,hValues,wValues}=generateAxis(this.width,this.height,6);
     this.axis = linesData;
+    this.currentPriceAxis='';
     this.baseTicks=wValues;
     this.vertiaclTicks=hValues;
     this.getlines = this.getlines.bind( this );
     this.getPath = this.getPath.bind( this );
     this.generateTicks = this.generateTicks.bind( this );
-    if( this.props.data == null ){
-      this.state = {
-        data : null ,
-      };
-      return;
-    }else{
-      this.state = {
-        data : this.props.data,
-      };
-    }
   }
   generateTicks(data){
     const values = data.map( item => item[0] );
@@ -160,64 +142,90 @@ class BarChart extends React.Component{
   getPath({
     lineData,
     start,end,
-    yvalues
+    ymin,ymax
   }){
       const {height,width} = this;
       const lastDatum = lineData[ lineData.length - 1 ];
-      const allYValues = yvalues;
       const scaleX = createScaleX( start, end , width)
-      const extentY = d3Array.extent( allYValues );
-      const scaleY = createScaleY( extentY[0] , extentY[1] , height );
+      const scaleY = createScaleY( ymin , ymax , height );
       return d3.shape.line()
               .x( d => scaleX( d[0] ) )
               .y( d => ( scaleY( d[1] ) ) );
   }
 
+  /*
+  getlines : generate candle d3 path/ shapes for respective time stamp.
+  @ data=[
+            [
+              1500055200000, //time stamp
+              2195.4 ,       //open
+              2209.7 ,       //close
+              2215 ,         //high
+              2174 ,         //low
+              2241.22567577  // volume
+            ],
+            ...
+          ];
+  */
 
   getlines(){
-    if(this.state.data['asks']==undefined){
+
+    const {data,maxCandles=30}=this.props;
+    const [TIMESTAMP,OPEN,CLOSE,HIGH,LOW]=[0,1,2,3,4];
+    if(data.length==0){
       return
     }
-    const whole=[ ...this.state.data['asks'] , ...this.state.data['bids'] ];
+    const whole = [
+      ...data.map( x => [ x[ TIMESTAMP ] , x[ HIGH ] ] ) ,
+      ...data.map( x => [ x[ TIMESTAMP ] , x[ LOW] ] )
+     ].slice(0,maxCandles);
     this.generateTicks( whole );
 
-    const {maxbars=16}=this.props;
+    const xvalues = whole.map( item => item[ TIMESTAMP ] );
+    const yvalues = whole.map( item => item[1] );
+    let [ start , end ] = d3Array.extent( xvalues );
+    let [ ymin , ymax ] = d3Array.extent( yvalues );
 
-    let asksData=filterToBars(this.state.data['asks'],maxbars/2);
-    let bidsData=filterToBars(this.state.data['bids'],maxbars/2);
+    let barWidth=( xvalues[0]-xvalues[1])/5;
+    end=end+barWidth*5;
 
-    const xvalues = [...asksData,...bidsData].map( item => item[0] );
-    const yvalues =[...asksData,...bidsData].map( item => item[1] );
-    const [start,end] = d3Array.extent(xvalues);//height min
+    const generateCandleBarEdges=(x)=>([
+      [ x[ TIMESTAMP ] - barWidth , x[ OPEN ] ] ,
+      [ x[ TIMESTAMP ] - barWidth , x[ CLOSE ] ] ,
+      [ x[ TIMESTAMP ] + barWidth , x[ CLOSE ] ] ,
+      [ x[ TIMESTAMP ] + barWidth , x[ OPEN ] ] ,
+    ]);
+    const generateCandleStickEdges=(x)=>([
+      [ x[ TIMESTAMP ]  , x[ LOW ] ],
+      [ x[ TIMESTAMP ]  , x[ HIGH ] ] ,
+    ]);
 
-    //get the gap between two consecutive bar's x positions
-    let barWidth=( asksData[0][0] - asksData[1][0] )/5;
-    let asksBarData = asksData.map( ( x ) => generateEdges( x , barWidth ) );
-    let bidsBarData = bidsData.map( ( x ) => generateEdges( x , barWidth ) );
+    //manipulation of min max to diplay content at edges of graphs
+    const yGap = (ymax-ymin)*2/this.height;
+    let currentPrice=(  (data[0][CLOSE]==ymax) ? ( data[0][CLOSE]-yGap) :( (data[0][CLOSE]==ymin) ? (data[0][CLOSE]+yGap) : data[0][CLOSE]) );
+    const currentPriceEdges=[ [ start , currentPrice ] , [ end , currentPrice ] ];
+    this.currentPriceAxis = this.getPath( { lineData:currentPriceEdges , start , end , ymax,ymin } )( currentPriceEdges );
 
-    this.asks = asksBarData.map( lineData => ( this.getPath( { lineData ,start , end ,yvalues} )( lineData ) + ` Z` ) ) ;
-    this.bids = bidsBarData.map( lineData => ( this.getPath( { lineData ,start , end ,yvalues} )( lineData ) + ` Z` ) ) ;
+    this.isFalling  = data.slice(0,maxCandles).map( x =>( x[ OPEN ] < x[ CLOSE ]))
+    let openClose = data.slice(0,maxCandles).map( generateCandleBarEdges );
+    let lowHighs = data.slice(0,maxCandles).map( generateCandleStickEdges );
+    this.bars  = openClose.map( lineData => ( this.getPath( { lineData , start , end , ymax , ymin } )( lineData ) + ` Z`) ) ;
+    this.sticks = lowHighs.map( lineData => ( this.getPath( { lineData , start , end , ymax , ymin  } )( lineData ) ) ) ;
   }
+
   componentWillReceiveProps( nextProps ){
-    if( nextProps.data == null || Array.isArray(nextProps.data) ){
-      this.setState({
-        data : null
-      })
-      return
-    }
     this.setState({
       data : nextProps.data
-    })
+    });
   }
   render(){
     this.getlines();
     const {styles,width,height,baseTicks,vertiaclTicks}=this;
-    if( this.state.data == null ){
+    if( this.props.data.length == 0 ){
       return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
     }
     const textWidth=width/baseTicks.length;
     const textHeight=height/vertiaclTicks.length;
-    console.log("rendering MarketDepth");
     return(
       <View style = {styles.chartView}>
         <Surface width = {width} height = {height}>
@@ -227,29 +235,37 @@ class BarChart extends React.Component{
               <Shape
                 d = {d}
                 key={i+'axis'}
-                stroke = '#ff0b88'
+                stroke = 'rgba(255, 11, 136,0.3)'
                 strokeWidth = {1}
                 >
               </Shape>
             ))
           }
-          {this.bids.map((bid,i)=>(<Shape
-              d  =  {bid}
-              key={i+'bidsBar'}
-              fill = 'rgb(0, 173, 239)'
-              strokeWidth = {1}
-              >
-            </Shape>))
-          }
-          {this.asks.map((ask,i)=>(<Shape
-              d = {ask}
-              fill = 'rgb(31, 212, 48)'
-              key={i+'asksBar'}
+
+          {this.sticks.map((stick,i)=>(<Shape
+              d = {stick}
+              stroke = '#000'
+              key={i+'candleStick'}
               strokeWidth = {1}
               >
               </Shape>))
             }
-          </Group>
+          {this.bars.map((bar,i)=>(<Shape
+              d  =  {bar}
+              key={i+'candleBar'}
+              fill = {(this.isFalling[i]==false)?'#c300':'rgb(31, 212, 48)'}
+              //fill = 'rgb(0, 173, 239,0.8)'
+              strokeWidth = {1}
+              >
+            </Shape>))
+          }
+          <Shape
+            d = {this.currentPriceAxis}
+            stroke = 'rgba( 0, 173, 239 , 1 )'
+            strokeWidth = {0.5}
+            >
+          </Shape>
+         </Group>
         </Surface>
         <View style={{height:60,width:width,flexDirection:'row'}}>
           {
@@ -265,4 +281,4 @@ class BarChart extends React.Component{
     )
   }
 }
-export default BarChart;
+export default CandleChart;
