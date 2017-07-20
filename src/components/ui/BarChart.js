@@ -4,6 +4,7 @@ import {ART} from "react-native";
 import * as scale from "d3-scale";
 import * as shape from "d3-shape";
 import * as d3Array from "d3-array";
+import throttle from 'lodash/throttle'
 const d3 = {scale,shape};
 const {Shape,Surface,Group} =  ART;
 
@@ -75,7 +76,7 @@ const assignStyles=(width,height)=>{
       marginTop:60,
       borderWidth:1,
       backgroundColor:'#474747',
-      borderColor:'#ff0b88',
+      borderColor:'#fef200',
       width,
       height,
     },
@@ -104,7 +105,6 @@ const filterToBars=(data,noOfBars) => {
   let xvalues=data.map(x=>x[0]);
   let min=Math.min.apply(null,xvalues);
   let max=Math.max.apply(null,xvalues);
-  console.log(min,max);
   gap=(max-min)/(noOfBars-1);
   filteredArray=[];
   for(pres=min;pres<= (max);pres=pres+gap){
@@ -126,6 +126,7 @@ class BarChart extends React.Component{
     this.bids=[];
     this.asks=[];
     this.styles=assignStyles(width,height);
+    this.props.throttle=this.props.throttle||0;
 
     const {linesData,hValues,wValues}=generateAxis(this.width,this.height,6);
     this.axis = linesData;
@@ -158,16 +159,14 @@ class BarChart extends React.Component{
     this.vertiaclTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*(i+1)).toPrecision(6));
   }
   getPath({
-    lineData,
-    start,end,
-    yvalues
+    xvalues,
+    yvalues,
   }){
-      const {height,width} = this;
-      const lastDatum = lineData[ lineData.length - 1 ];
-      const allYValues = yvalues;
-      const scaleX = createScaleX( start, end , width)
-      const extentY = d3Array.extent( allYValues );
-      const scaleY = createScaleY( extentY[0] , extentY[1] , height );
+    let [ start , end ] = d3Array.extent( xvalues );
+    const [ymin,ymax] = d3Array.extent(yvalues);//height min
+    const scaleX = createScaleX( start, end , this.width)
+    const scaleY = createScaleY( ymin , ymax , this.height );
+
       return d3.shape.line()
               .x( d => scaleX( d[0] ) )
               .y( d => ( scaleY( d[1] ) ) );
@@ -175,6 +174,7 @@ class BarChart extends React.Component{
 
 
   getlines(){
+//    console.log(this.state.data);
     if(this.state.data['asks']==undefined){
       return
     }
@@ -188,81 +188,75 @@ class BarChart extends React.Component{
 
     const xvalues = [...asksData,...bidsData].map( item => item[0] );
     const yvalues =[...asksData,...bidsData].map( item => item[1] );
-    const [start,end] = d3Array.extent(xvalues);//height min
+    const path=this.getPath( { xvalues,yvalues } )
 
     //get the gap between two consecutive bar's x positions
     let barWidth=( asksData[0][0] - asksData[1][0] )/5;
     let asksBarData = asksData.map( ( x ) => generateEdges( x , barWidth ) );
     let bidsBarData = bidsData.map( ( x ) => generateEdges( x , barWidth ) );
 
-    this.asks = asksBarData.map( lineData => ( this.getPath( { lineData ,start , end ,yvalues} )( lineData ) + ` Z` ) ) ;
-    this.bids = bidsBarData.map( lineData => ( this.getPath( { lineData ,start , end ,yvalues} )( lineData ) + ` Z` ) ) ;
+    this.asks = asksBarData.map( lineData => ( path( lineData ) + ` Z` ) ) ;
+    this.bids = bidsBarData.map( lineData => ( path( lineData ) + ` Z` ) ) ;
   }
   componentWillReceiveProps( nextProps ){
-    if( nextProps.data == null || Array.isArray(nextProps.data) ){
-      this.setState({
-        data : null
-      })
-      return
-    }
     this.setState({
       data : nextProps.data
-    })
+    });
   }
-  render(){
-    this.getlines();
-    const {styles,width,height,baseTicks,vertiaclTicks}=this;
-    if( this.state.data == null ){
-      return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
-    }
-    const textWidth=width/baseTicks.length;
-    const textHeight=height/vertiaclTicks.length;
-    console.log("rendering MarketDepth");
-    return(
-      <View style = {styles.chartView}>
-        <Surface width = {width} height = {height}>
-          <Group x = {0} y = {0}>
-          {
-            this.axis.map((d,i)=>(
-              <Shape
-                d = {d}
-                key={i+'axis'}
-                stroke = '#ff0b88'
+  render=(throttle(()=>{
+      this.getlines();
+      const {styles,width,height,baseTicks,vertiaclTicks}=this;
+      if( this.state.data == null ){
+        return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
+      }
+      const textWidth=width/baseTicks.length;
+      const textHeight=height/vertiaclTicks.length;
+      return(
+        <View style = {styles.chartView}>
+          <Surface width = {width} height = {height}>
+            <Group x = {0} y = {0}>
+            {
+              this.axis.map((d,i)=>(
+                <Shape
+                  d = {d}
+                  key={i+'axis'}
+                  stroke = '#ff0b88'
+                  strokeWidth = {0.5}
+                  >
+                </Shape>
+              ))
+            }
+            {this.bids.map((bid,i)=>(<Shape
+                d  =  {bid}
+                key={i+'bidsBar'}
+                fill = 'rgb(0, 173, 239)'
                 strokeWidth = {1}
                 >
-              </Shape>
-            ))
-          }
-          {this.bids.map((bid,i)=>(<Shape
-              d  =  {bid}
-              key={i+'bidsBar'}
-              fill = 'rgb(0, 173, 239)'
-              strokeWidth = {1}
-              >
-            </Shape>))
-          }
-          {this.asks.map((ask,i)=>(<Shape
-              d = {ask}
-              fill = 'rgb(31, 212, 48)'
-              key={i+'asksBar'}
-              strokeWidth = {1}
-              >
               </Shape>))
             }
-          </Group>
-        </Surface>
-        <View style={{height:60,width:width,flexDirection:'row'}}>
-          {
-            baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
-          }
+            {this.asks.map((ask,i)=>(<Shape
+                d = {ask}
+                fill = 'rgb(31, 212, 48)'
+                key={i+'asksBar'}
+                strokeWidth = {1}
+                >
+                </Shape>))
+              }
+            </Group>
+          </Surface>
+          <View style={{height:60,width:width,flexDirection:'row'}}>
+            {
+              baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+            }
+          </View>
+          <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
+            {
+              vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textHeight}]} key={i+'vTick'} >{tick}</Text>)
+            }
+          </View>
         </View>
-        <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
-          {
-            vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textHeight}]} key={i+'vTick'} >{tick}</Text>)
-          }
-        </View>
-      </View>
-    )
-  }
+      )
+    },this.props.throttle)
+  )
 }
 export default BarChart;

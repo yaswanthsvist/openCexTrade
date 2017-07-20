@@ -4,6 +4,7 @@ import {ART} from "react-native";
 import * as scale from "d3-scale";
 import * as shape from "d3-shape";
 import * as d3Array from "d3-array";
+import throttle from 'lodash/throttle';
 const d3 = {scale,shape};
 const {Shape,Surface,Group} =  ART;
 
@@ -72,7 +73,7 @@ const assignStyles=(width,height)=>{
       marginTop:60,
       borderWidth:1,
       backgroundColor:'#474747',
-      borderColor:'#ff0b88',
+      borderColor:'#fef200',
       width,
       height,
     },
@@ -106,16 +107,10 @@ class MarketDepth extends React.Component{
     this.getlines = this.getlines.bind( this );
     this.getPath = this.getPath.bind( this );
     this.generateTicks = this.generateTicks.bind( this );
-    if( this.props.data == null ){
-      this.state = {
-        data : null ,
-      };
-      return;
-    }else{
-      this.state = {
-        data : this.props.data,
-      };
-    }
+    this.props.throttle=this.props.throttle||0;
+    this.state = {
+      data : this.props.data,
+    };
   }
 
   generateTicks(data){
@@ -169,67 +164,63 @@ class MarketDepth extends React.Component{
     const bids = this.getPath({ lineData:bidsData ,start,end,yvalues});
     this.bids = bids( bidsData )+ `  Z`;
   }
-  componentWillReceiveProps( nextProps ){
-    if( nextProps.data == null || Array.isArray(nextProps.data) ){
-      this.setState({
-        data : null
-      })
-      return
-    }
-    this.setState({
-      data : nextProps.data
-    })
+  componentWillReceiveProps(nextProps){
+        this.setState({
+          data : nextProps.data
+        });
   }
-  render(){
-    this.getlines();
-    const {styles,width,height,baseTicks,vertiaclTicks}=this;
-    if( this.state.data == null ){
-      return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
-    }
-    const textWidth=width/baseTicks.length;
-    const textHeight=height/vertiaclTicks.length;
-    console.log("rendering MarketDepth");
-    return(
-      <View style = {styles.chartView}>
-        <Surface width = {width} height = {height}>
-          <Group x = {0} y = {0}>
-          {
-            this.axis.map((d,i)=>(
+  render=(throttle(()=>{
+      this.getlines();
+      const {styles,width,height,baseTicks,vertiaclTicks}=this;
+      if( this.state.data == null ){
+        return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
+      }
+      const textWidth=width/baseTicks.length;
+      const textHeight=height/vertiaclTicks.length;
+      return(
+        <View style = {styles.chartView}>
+          <Surface width = {width} height = {height}>
+            <Group x = {0} y = {0}>
+            {
+              this.axis.map((d,i)=>(
+                <Shape
+                  d = {d}
+                  key={i+'axis'}
+                  stroke = '#ff0b88'
+                  strokeWidth = {0.5}
+                  >
+                </Shape>
+              ))
+            }
               <Shape
-                d = {d}
-                key={i+'axis'}
-                stroke = '#ff0b88'
+                d  =  {this.bids}
+                fill = '#00adef'
                 strokeWidth = {1}
                 >
               </Shape>
-            ))
-          }
-            <Shape
-              d  =  {this.bids}
-              fill = '#00adef'
-              strokeWidth = {1}
-              >
-            </Shape>
-            <Shape
-              d = {this.asks}
-              fill = '#1fd430'
-              strokeWidth = {1}
-              >
-            </Shape>
-          </Group>
-        </Surface>
-        <View style={{height:60,width:width,flexDirection:'row'}}>
-          {
-            baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
-          }
+              <Shape
+                d = {this.asks}
+                fill = '#1fd430'
+                strokeWidth = {1}
+                >
+              </Shape>
+            </Group>
+          </Surface>
+          <View style={{height:60,width:width,flexDirection:'row'}}>
+            {
+              baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+            }
+          </View>
+          <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
+            {
+              vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textHeight}]} key={i+'vTick'} >{tick}</Text>)
+            }
+          </View>
         </View>
-        <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
-          {
-            vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textHeight}]} key={i+'vTick'} >{tick}</Text>)
-          }
-        </View>
-      </View>
-    )
-  }
+      )
+    },
+    this.props.throttle)
+  )
+
 }
 export default MarketDepth;

@@ -3723,6 +3723,10 @@ load-json-file@^1.0.0:
     pinkie-promise "^2.0.0"
     strip-bom "^2.0.0"
 
+loadash@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/loadash/-/loadash-0.0.1.tgz#7537b44df4ef299b25b3c962109d26e453f8135e"
+
 locate-path@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-2.0.0.tgz#2b568b265eec944c6d9c0de9c3dbbbca0354cd8e"

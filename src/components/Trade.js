@@ -7,162 +7,109 @@ import MarketDepth from './ui/MarketDepth';
 import BarChart from './ui/BarChart';
 import CandleChart from './ui/CandleChart';
 
-let BOOK = {
-  bids : {},
-  asks : {},
-  psnap : {},
-  mcnt : 0,
-}
-let bookChannelid=null;
-const checkCross = (msg) => {
-  let bid = BOOK.psnap.bids[0]
-  let ask = BOOK.psnap.asks[0]
-  if (bid >= ask) {
-    console.log( "bid(" + bid + ")>=ask(" + ask + ")");
-  }
-}
-const handleBook =(msg,dispatch,chanId)=> {
-    if(msg[0]!=chanId||msg[1]=='hb'){
-      return;
-    }
-  //  console.log(msg[1]);
-    if (BOOK.mcnt === 0) {
-      msg[1].forEach( (pp)=>{
-        pp = { price: pp[0], cnt: pp[1], amount: pp[2] }
-        const side = pp.amount >= 0 ? 'bids' : 'asks'
-        pp.amount = Math.abs(pp.amount)
-        BOOK[side][pp.price] = pp
-      })
-    }
-    else {
-      let pp = { price: msg[1][0], cnt: msg[1][1], amount: msg[1][2] }
-      if (!pp.cnt) {
-        let found = true
-        if (pp.amount > 0) {
-          if (BOOK['bids'][pp.price]) {
-            delete BOOK['bids'][pp.price]
-          } else {
-            found = false
-          }
-        } else if (pp.amount < 0) {
-          if (BOOK['asks'][pp.price]) {
-            delete BOOK['asks'][pp.price]
-          } else {
-            found = false
-          }
-        }
-        if (!found) {
-          console.log(JSON.stringify(pp) + " BOOK delete fail side not found\n");
-        }
-      } else {
-        let side = pp.amount >= 0 ? 'bids' : 'asks'
-        pp.amount = Math.abs(pp.amount)
-        BOOK[side][pp.price] = pp
-      }
-    }
 
-    let sides=['bids', 'asks'];
-    let presentableData={},barsData={};
-    sides.forEach( (side)=>{
-      let sbook = BOOK[side]
-      let bprices = Object.keys(sbook)
-
-      let prices = bprices.sort(function(a, b) {
-        if (side === 'bids') {
-          return +a >= +b ? -1 : 1
-        } else {
-          return +a <= +b ? -1 : 1
-        }
-      })
-
-      BOOK.psnap[side] = prices;
-      //console.log("num price points", side, prices.length)
-      let list=[],amount=0;
-      for (let price of prices){
-        list.push([price, ( amount += BOOK[side][price].amount ) ] );
-      };
-      presentableData[side]=list;
-      barsData[side]=prices.map(price=>[price,BOOK[side][price].amount]);
-    });
-    BOOK.mcnt++;
-    checkCross(msg)
-    dispatch( bitfinexActions.updateBooksData({presentableData,barsData,chanId}) );
-  }
-
+console.log("Trade Global.");
 
 
 class Trade extends React.Component{
   constructor(props){
     super(props)
-    const candleChannleHandler=(msg)=>{
-      const {bitfinex,dispatch}=this.props;
-      if( !Array.isArray( msg ) && msg.event == "subscribed" ){
-        if( msg.channel == "candles" ){
-          dispatch( bitfinexActions.subscribeToCandles( msg ) );
-        }
-        if( msg.channel == "book" ){
-          console.log(msg.channel);
-          dispatch( bitfinexActions.subscribedToBook( msg ) );
-        }
-      } else if( Array.isArray( msg ) ){
-        handleBook(msg,dispatch,bitfinex.books.chanId);
-        const data = msg[1];
-        const chanId = msg[0];
-        if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
-          if( Array.isArray(data[0]) ){
-            dispatch( bitfinexActions.initializeCandlesData( { data , chanId } ) )
-          }else{
-            dispatch (bitfinexActions.updateCandlesData( { data , chanId } ) );
-          }
+    this.channleHandler=this.channleHandler.bind(this);
+    this.configureWebSockets=this.configureWebSockets.bind(this);
+    this.state={};
+    wsBitfinex.addListener(this.channleHandler);
+    this.configureWebSockets(this.props);
+  }
+  channleHandler(msg){
+    const {bitfinex,dispatch}=this.props;
+    if( !Array.isArray( msg ) && msg.event == "subscribed" ){
+      console.log("Subscribed to",msg);
+      if( msg.channel == "candles" ){
+        console.log("Subscribed to candles",msg);
+        dispatch( bitfinexActions.subscribeToCandles( msg ) );
+      }
+      if( msg.channel == "book" ){
+        dispatch( bitfinexActions.subscribedToBook( msg ) );
+      }
+    } else if( Array.isArray( msg ) ){
+      wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);
+      const [chanId , data ] = msg;
+      if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
+        if( Array.isArray(data[0]) ){
+          dispatch( bitfinexActions.initializeCandlesData( { data , chanId } ) )
+        }else{
+          dispatch (bitfinexActions.updateCandlesData( { data , chanId } ) );
         }
       }
     }
-    this.state={};
-    wsBitfinex.addListener(candleChannleHandler);
-    wsBitfinex.init().then(()=>{
-        wsBitfinex.send({
-                "event": "subscribe",
-                "channel": "candles",
-                "key": "trade:1m:tBTCUSD"
-              });
-        wsBitfinex.send({
-            event: "subscribe",
-            channel: "book",
-            pair:"tBTCUSD" ,
-            prec: "P0",
-            "freq": "F3",
-            "len": 25
-          });
-      }
-    );
   }
   componentWillReceiveProps(nextProps) {
-    const {data}=this.props.bitfinex.candles;
-    if(
-      nextProps.bitfinex.candles.data!=null &&
-      data != null &&
-      data.length != nextProps.bitfinex.candles.data.length
-    ){
-//      console.log(nextProps.bitfinex.candles.data[0]);
+    if(nextProps.exchange.symbol1==this.props.exchange.symbol1&&nextProps.exchange.symbol2==this.props.exchange.symbol2){
+      return
     }
+    this.configureWebSockets(nextProps);
   }
   static navigationOptions={
     title:"Trade",
     drawerLabel: 'Home',
     tabBarLabel: 'Trade',
   }
+  configureWebSockets(props){
+    const {dispatch,bitfinex,exchange}=props;
+    dispatch({type:"BITFINEX_UNSUBSCRIBED_CANDLE"});
+    dispatch({type:"BITFINEX_UNSUBSCRIBED_BOOK"});
+    console.log(exchange);
+    const booksChanid=bitfinex.books.chanId;
+    const candlesChanid=bitfinex.candles.chanId;
+    if(candlesChanid!=null){
+      wsBitfinex.send(
+        {
+         "event": "unsubscribe",
+         "chanId": booksChanid
+        }
+      );
+    }
+    if(booksChanid!=null){
+      wsBitfinex.send(
+        {
+         "event": "unsubscribe",
+         "chanId": booksChanid
+        }
+      );
+    }
+    const {symbol1,symbol2}=exchange;
+    wsBitfinex.isReady()
+      .then((socket)=>{
+            wsBitfinex.send({
+                "event": "subscribe",
+                "channel": "candles",
+                "key": `trade:1m:t${symbol1+symbol2}`
+            });
+            console.log(wsBitfinex.send({
+              event: "subscribe",
+              channel: "book",
+              pair:`t${symbol1+symbol2}` ,
+              prec: "P0",
+              "freq": "F3",
+              "len": 25
+            }));
+      })
+
+  }
   render(){
     const { presentableData , barsData }=this.props.bitfinex.books;
     const {data}=this.props.bitfinex.candles;
+//    console.log(this.props.nav);
     return(
-      <View>
+      <ScrollView>
+        <View>
         {/*
-        <MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={presentableData}></MarketDepth>
-        <BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={barsData}></BarChart>
-        */}
-        <CandleChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} data={data}></CandleChart>
-        <Text>Trade here</Text>
-      </View>
+          <MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={2000} data={presentableData}></MarketDepth>
+          <BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={2000}  data={barsData}></BarChart>
+          <CandleChart width={Dimensions.get('screen').width} maxCandles={30} height={Dimensions.get('screen').height/3} data={data}></CandleChart>
+          */}
+        </View>
+      </ScrollView>
     )
   }
 }
@@ -172,5 +119,6 @@ class Trade extends React.Component{
 
 const mapStateToProps = state => ({
   bitfinex:state.bitfinex,
+  exchange:state.exchange,
 });
 export default connect(mapStateToProps)(Trade);

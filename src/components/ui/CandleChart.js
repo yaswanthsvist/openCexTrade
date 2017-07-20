@@ -140,14 +140,16 @@ class CandleChart extends React.Component{
     this.vertiaclTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*(i+1)).toPrecision(6));
   }
   getPath({
-    lineData,
-    start,end,
-    ymin,ymax
+    xvalues,
+    yvalues,
   }){
-      const {height,width} = this;
-      const lastDatum = lineData[ lineData.length - 1 ];
-      const scaleX = createScaleX( start, end , width)
-      const scaleY = createScaleY( ymin , ymax , height );
+    let [ start , end ] = d3Array.extent( xvalues );
+    let barWidth=( xvalues[0]-xvalues[1])/5;
+    end=end+barWidth*5;
+    const [ymin,ymax] = d3Array.extent(yvalues);//height min
+    const scaleX = createScaleX( start, end , this.width)
+    const scaleY = createScaleY( ymin , ymax , this.height );
+
       return d3.shape.line()
               .x( d => scaleX( d[0] ) )
               .y( d => ( scaleY( d[1] ) ) );
@@ -179,14 +181,14 @@ class CandleChart extends React.Component{
       ...data.map( x => [ x[ TIMESTAMP ] , x[ HIGH ] ] ) ,
       ...data.map( x => [ x[ TIMESTAMP ] , x[ LOW] ] )
      ].slice(0,maxCandles);
+
     this.generateTicks( whole );
 
     const xvalues = whole.map( item => item[ TIMESTAMP ] );
     const yvalues = whole.map( item => item[1] );
-    let [ start , end ] = d3Array.extent( xvalues );
-    let [ ymin , ymax ] = d3Array.extent( yvalues );
-
     let barWidth=( xvalues[0]-xvalues[1])/5;
+    const [ymin,ymax] = d3Array.extent(yvalues);//height min
+    let [ start , end ] = d3Array.extent( xvalues );
     end=end+barWidth*5;
 
     const generateCandleBarEdges=(x)=>([
@@ -204,13 +206,16 @@ class CandleChart extends React.Component{
     const yGap = (ymax-ymin)*2/this.height;
     let currentPrice=(  (data[0][CLOSE]==ymax) ? ( data[0][CLOSE]-yGap) :( (data[0][CLOSE]==ymin) ? (data[0][CLOSE]+yGap) : data[0][CLOSE]) );
     const currentPriceEdges=[ [ start , currentPrice ] , [ end , currentPrice ] ];
-    this.currentPriceAxis = this.getPath( { lineData:currentPriceEdges , start , end , ymax,ymin } )( currentPriceEdges );
-
     this.isFalling  = data.slice(0,maxCandles).map( x =>( x[ OPEN ] < x[ CLOSE ]))
+
+    const path=this.getPath( { xvalues,yvalues } )
+
     let openClose = data.slice(0,maxCandles).map( generateCandleBarEdges );
     let lowHighs = data.slice(0,maxCandles).map( generateCandleStickEdges );
-    this.bars  = openClose.map( lineData => ( this.getPath( { lineData , start , end , ymax , ymin } )( lineData ) + ` Z`) ) ;
-    this.sticks = lowHighs.map( lineData => ( this.getPath( { lineData , start , end , ymax , ymin  } )( lineData ) ) ) ;
+
+    this.bars  = openClose.map( lineData => ( path( lineData ) + ` Z`) ) ;
+    this.sticks = lowHighs.map( lineData => ( path( lineData ) ) ) ;
+    this.currentPriceAxis = path( currentPriceEdges );
   }
 
   componentWillReceiveProps( nextProps ){

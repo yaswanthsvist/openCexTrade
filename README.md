@@ -18,7 +18,7 @@
 * ~~Scan barcode qr for reading API Secret from CEX.IO Profile.~~ (scanable QR code in Website is for only Official App).
 * ~~Websocket integration for real time updates for~~
     1. ~~candle data,~~
-    2. ~~Market Depth.~~ (books)(
+    2. ~~Market Depth.~~ (books)
     3. ~~BarChart. (barcharts)~~
     3. latest bids,latest price.
 * ~~combine bitfinex & CEX.io data in single marketDepth/line charts.~~(CEX.io websocket event for market data is depreciated).
@@ -31,6 +31,5 @@
 
 # Limitations.
 Due to unavailability of Public and Private API's there are few feature's that can not be implemented and the intention
-is to avoid feature's which are already available in Official Mobile App from CEX.IO. 
+is to avoid feature's which are already available in Official Mobile App from CEX.IO.
 Use the Official APP for More Features.
-
