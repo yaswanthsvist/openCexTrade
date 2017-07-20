@@ -4,6 +4,17 @@ import exchange from './exchange';
 import auth,{password} from './auth';
 import public_data,{bitfinex} from './public_data';
 
+const screen=(state="Exchange",action)=>{
+  switch (action.type) {
+    case "SET_CURRENT_SCREEN":
+      return action.screen;
+      break;
+    default:
+      return state;
+  }
+}
+
+
 rootReducer=combineReducers({
   nav,
   exchange,
@@ -11,5 +22,6 @@ rootReducer=combineReducers({
   password,
   public_data,
   bitfinex,
+  screen,
 })
 export default rootReducer;

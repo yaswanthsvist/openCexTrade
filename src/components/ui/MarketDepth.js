@@ -165,6 +165,7 @@ class MarketDepth extends React.Component{
     this.bids = bids( bidsData )+ `  Z`;
   }
   componentWillReceiveProps(nextProps){
+        console.log(nextProps.data);
         this.setState({
           data : nextProps.data
         });
@@ -177,6 +178,8 @@ class MarketDepth extends React.Component{
       }
       const textWidth=width/baseTicks.length;
       const textHeight=height/vertiaclTicks.length;
+      console.log(this.bids);
+      console.log(this.asks);
       return(
         <View style = {styles.chartView}>
           <Surface width = {width} height = {height}>

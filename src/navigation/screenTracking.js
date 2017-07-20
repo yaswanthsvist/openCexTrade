@@ -14,7 +14,7 @@ function getCurrentRouteName(navigationState) {
   return route.routeName;
 }
 
-const screenTracking = ({ getState }) => next => (action) => {
+const screenTracking = ({ getState,dispatch }) => next => (action) => {
   //console.log("screenTracking");
   if (
     action.type !== NavigationActions.NAVIGATE
@@ -22,17 +22,14 @@ const screenTracking = ({ getState }) => next => (action) => {
   ) {
     return next(action);
   }
-  console.log(action);
   const currentScreen = getCurrentRouteName(getState().nav);
-  console.log(currentScreen);
   const result = next(action);
-  console.log(result);
   const nextScreen = getCurrentRouteName(getState().nav);
-  console.log(nextScreen);
   if (nextScreen !== currentScreen) {
     // the line below uses the Google Analytics tracker
     // change the tracker here to use other Mobile analytics SDK.
     console.log("screenTracking",nextScreen);
+    dispatch({type:"SET_CURRENT_SCREEN",screen:nextScreen});
   }
   return result;
 };

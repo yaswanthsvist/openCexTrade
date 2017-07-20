@@ -55,7 +55,7 @@ const candles=(state=defBitfinexState.candles,action)=>{
           chanId:action.chanId,
       };
       break;
-    case "BITFINEX_UNSUBSCRIBED_CANDLE":
+    case "BITFINEX_UNSUBSCRIBE_CANDLE":
       return {
           ...state,
           data:[],
@@ -101,7 +101,7 @@ const books=(state=defBitfinexState.books,action)=>{
             };
           }
       break;
-    case "BITFINEX_UNSUBSCRIBED_BOOK":
+    case "BITFINEX_UNSUBSCRIBE_BOOK":
       return {
           ...state,
           presentableData:{},
@@ -125,7 +125,7 @@ const books=(state=defBitfinexState.books,action)=>{
 export const bitfinex=(state=defBitfinexState,action)=>{
   switch (action.type) {
     case "BITFINEX_SUBSCRIBED_CANDLE":
-    case "BITFINEX_UNSUBSCRIBED_CANDLE":
+    case "BITFINEX_UNSUBSCRIBE_CANDLE":
     case "BITFINEX_INITIALIZE_CANDLE":
     case "BITFINEX_UPDATE_CANDLE":
         return {
@@ -134,7 +134,7 @@ export const bitfinex=(state=defBitfinexState,action)=>{
         }
         break;
     case "BITFINEX_SUBSCRIBED_BOOK":
-    case "BITFINEX_UNSUBSCRIBED_BOOK":
+    case "BITFINEX_UNSUBSCRIBE_BOOK":
     case "BITFINEX_UPDATE_BOOK":
         return {
           ...state,

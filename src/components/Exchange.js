@@ -66,7 +66,7 @@ class Exchange extends React.Component{
         <DropDown data={this.symbolPairs}></DropDown>
         <ScrollView>
           <View style={{flex:1}}>
-          <LineChart data={ohlcv} timeType={timeType}  width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={10} ></LineChart>
+          <LineChart data={ohlcv} timeType={timeType}  width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={1} ></LineChart>
             <Button
               onPress={this.showInMinuites}
               title="Minute"
@@ -85,7 +85,6 @@ class Exchange extends React.Component{
               color="#841584"
               >
             </Button>
-
           </View>
         </ScrollView>
       </View>
