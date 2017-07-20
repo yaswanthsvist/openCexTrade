@@ -25,6 +25,7 @@
     "d3": "^4.9.1",
     "deep-freeze": "^0.0.1",
     "expo": "^18.0.3",
+    "loadash": "^0.0.1",
     "react": "16.0.0-alpha.12",
     "react-native": "^0.45.1",
     "react-native-triangle": "^0.0.7",

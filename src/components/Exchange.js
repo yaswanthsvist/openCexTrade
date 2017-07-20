@@ -6,6 +6,8 @@ import * as exchangeActions from './../actions/exchange'
 import * as public_dataActions from './../actions/public_data'
 import {connect} from 'react-redux'
 import DropDown from './ui/DropDown';
+import CandleChart from './ui/CandleChart';
+import wsBitfinex from './../services/webSocket';
 class Exchange extends React.Component{
   constructor(props){
     console.log("Exchange");
@@ -31,6 +33,7 @@ class Exchange extends React.Component{
       const {dispatch}=this.props;
       dispatch(public_dataActions.fetchOhlcv());
   }
+
   showHourly(){
     const {dispatch}=this.props;
     const action=exchangeActions.setTimeType('data1h');
@@ -56,14 +59,14 @@ class Exchange extends React.Component{
     const tabBarHeight=60,statusBarHeight=20;
     const {timeType}=this.props.exchange;
     const ohlcv=this.props.ohlcv;
-    console.log(timeType);
+    //console.log(timeType);
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
     return(
       <View>
         <DropDown data={this.symbolPairs}></DropDown>
         <ScrollView>
-          <View style={{height:500}}>
-            <LineChart data={ohlcv} timeType={timeType} sampleRatio={this.state.sampleRatio} ></LineChart>
+          <View style={{flex:1}}>
+          <LineChart data={ohlcv} timeType={timeType}  width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={10} ></LineChart>
             <Button
               onPress={this.showInMinuites}
               title="Minute"
@@ -92,6 +95,7 @@ class Exchange extends React.Component{
 
 const mapStateToProps = state => ({
   exchange: state.exchange,
+  bitfinex:state.bitfinex,
   ohlcv:state.public_data.ohlcv,
 });
 /* const function mapDispatchToProps(dispatch) {

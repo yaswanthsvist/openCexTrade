@@ -35,6 +35,35 @@ function createScaleY(minY, maxY, height) {
 
 }
 
+const assignStyles=(width,height)=>{
+  return StyleSheet.create({
+    chartMsgView : {
+      flexDirection : "row",
+      alignItems : 'center',
+      backgroundColor : '#448aff',
+      width,
+      height,
+    },
+    chartView : {
+      backgroundColor:'#474747',
+      borderColor:'#fef200',
+      width,
+      height,
+    },
+    chartMsg : {
+      width,
+      color : '#eee',
+      textAlign : 'center',
+      fontSize : 18,
+      fontWeight : 'bold',
+    },
+    bTickText : {
+      fontSize : 10,
+      color : '#ffffff',
+    },
+  })
+}
+
 const generateAxis = ( width , height , lines = 5 ) => {
   const gapBtwHLines = ( height )/ lines; //gap between horizontal Lines
   const gapBtwVLines = ( width )/ lines; //time gap between Vertical Lines
@@ -46,11 +75,13 @@ const generateAxis = ( width , height , lines = 5 ) => {
     const wValue =gapBtwVLines*i ;
     hValues.push(hValue);
     wValues.push(wValue);
-    linesData.push(`M0,${hValue}L${width},${hValue}`);//height will be constant
-    linesData.push(`M${wValue},0L${wValue},${height}`);//height will be constant
+    linesData.push(`M0,${hValue}L${width},${hValue}`);//height will be constant ( horizontal axis)
+    linesData.push(`M${wValue},0L${wValue},${height}`);//height will be constant ( verical axis)
   }
   return {linesData,hValues,wValues};
 }
+
+
 /**
  * Create d attribute for an SVG path or ART's Shape.
  * @param {array} lineData consists array of {timestamp,value}.
@@ -75,8 +106,11 @@ const getTimeFormat=(time,type)=>{
 class LineChart extends React.Component{
   constructor( props ){
     super( props )
-    this.width = Dimensions.get('window').width-60;
-    const {linesData,hValues,wValues}=generateAxis(this.width,this.width,8);
+    const {width=Dimensions.get('window').width,height=Dimensions.get('window').height}=this.props;
+    this.width = width-60;
+    this.height = height-60;
+    this.styles=assignStyles(width,height);
+    const {linesData,hValues,wValues}=generateAxis(this.width,this.height,6);
     this.axis = linesData;
     this.baseTicks=wValues;
     this.vertiaclTicks=hValues;
@@ -100,8 +134,8 @@ class LineChart extends React.Component{
     lineData,
     scale = 1
    ){
-     const height = this.width;
      const width = this.width;
+     const height = this.height;
      const lastDatum = lineData[ lineData.length - 1 ];
      const allYValues = lineData.reduce( ( all , datum ) => {
         all.push( parseInt( datum.value ) );
@@ -109,7 +143,7 @@ class LineChart extends React.Component{
       }, [] );
       const scaleX = createScaleX( lineData[0].time , lastDatum.time , width)
       const extentY = d3Array.extent( allYValues );
-      const scaleY = createScaleY( extentY[0] , extentY[1] , width );
+      const scaleY = createScaleY( extentY[0] , extentY[1] , height );
       return d3.shape.line()
               .x( d => scaleX( d.time ) )
               .y( d => ( scaleY( d.value * scale ) ) );
@@ -132,24 +166,26 @@ class LineChart extends React.Component{
     if( this.state.data == null){
       return
     }
+    const [TIMESTAMP,OPEN,CLOSE,HIGH,LOW,VOLUME]=[0,1,2,3,4,5];
     let highData = this.state.data
       .filter( ( candle , index ) => { return ( !( index%this.state.sampleRatio ) ) } )//sampling data here
       .map( candle => {
-        return { time : new Date( candle[0] ) , value : candle[2] }
+        return { time : new Date( candle[ TIMESTAMP ] ) , value : candle[ HIGH ] }
       });
     let lowData = this.state.data
       .filter( ( candle , index ) => { return ( !( index%this.state.sampleRatio ) ) })//sampling data here
-      .map( candle => ( { time : new Date( candle[0] ) , value : candle[3] } ) );
+      .map( candle => ( { time : new Date( candle[ TIMESTAMP ] ) , value : candle[ LOW ] } ) );
     let volumeData = this.state.data
       .filter( (candle,index) => { return ( !( index%this.state.sampleRatio ) ) } )//sampling data here
-      .map( candle => ( { time : new Date( candle[0] ) , value : candle[5] } ) );// 5 is for volume
+      .map( candle => ( { time : new Date( candle[ TIMESTAMP ] ) , value : candle[ VOLUME ] } ) );// 5 is for volume
+
     this.generateTicks( highData );
     const high = this.getPath( highData )
     this.high = high( highData );
     const low = this.getPath( lowData )
     this.low = low( lowData );
     const volume = this.getPath( volumeData , 0.3 )
-    this.volume = `M0 ${ this.width } ` + volume( volumeData ).slice( 1 ) + `L${ this.width } ${ this.width } Z`;
+    this.volume = `M0 ${ this.height } ` + volume( volumeData ).slice( 1 ) + `L${ this.width } ${ this.height } Z`;
   }
   componentWillReceiveProps( nextProps ){
     if( nextProps.data == null || Array.isArray(nextProps.data) ){
@@ -164,21 +200,23 @@ class LineChart extends React.Component{
   }
   render(){
     this.getlines();
+    const {styles,width,height,baseTicks,vertiaclTicks}=this;
     if( this.state.data == null ){
       return (<View style = { styles.chartMsgView } ><Text style = {styles.chartMsg} >Unable to get the Data</Text></View>);
     }
     const textWidth=this.width/this.baseTicks.length;
+    const textHeight=height/vertiaclTicks.length;
     return(
       <View style = {styles.chartView}>
-        <Surface width = {this.width} height = {this.width}>
+        <Surface width = {width} height = {height}>
           <Group x = {0} y = {0}>
           {
             this.axis.map((d,i)=>(
               <Shape
                 d = {d}
                 key={i+'axis'}
-                stroke = '#aaa'
-                strokeWidth = {1}
+                stroke = '#ff0b88'
+                strokeWidth = {0.5}
                 >
               </Shape>
             ))
@@ -186,32 +224,31 @@ class LineChart extends React.Component{
             <Shape
               d  =  {this.high}
               stroke = '#1faa00'
-              strokeWidth = {1}
+              strokeWidth = {1.5}
               >
             </Shape>
             <Shape
               d = {this.low}
               stroke = '#c300'
-              strokeWidth = {1}
+              strokeWidth = {1.5}
               >
             </Shape>
             <Shape
               d = {this.volume}
-              fill = 'rgba(0,0,255,0.31)'
-              strokeWidth = {1}
+              fill = 'rgba( 0, 173, 239 , 0.7 )'
               >
             </Shape>
 
           </Group>
         </Surface>
-        <View style={{height:60,width:this.width,flexDirection:'row'}}>
+        <View style={{height:70,width,flexDirection:'row'}}>
           {
-            this.baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+            baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
           }
         </View>
-        <View style={{position : 'absolute',right:0,width:60,height:this.width,flexDirection:'column'}}>
+        <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
           {
-            this.vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textWidth}]} key={i+'vTick'} >{tick}</Text>)
+            vertiaclTicks.reverse().map((tick,i)=><Text style={[styles.bTickText,{height:textHeight}]} key={i+'vTick'} >{tick}</Text>)
           }
         </View>
       </View>
@@ -219,30 +256,3 @@ class LineChart extends React.Component{
   }
 }
 export default LineChart;
-
-const windowWidth = Dimensions.get('window').width;
-const styles = StyleSheet.create({
-  chartMsgView : {
-    flexDirection : "row",
-    alignItems : 'center',
-    backgroundColor : '#448aff',
-    width : windowWidth,
-    height : windowWidth,
-  },
-  chartView : {
-    backgroundColor : '#c0cfff',
-    width : windowWidth,
-    height : windowWidth,
-  },
-  chartMsg : {
-    width : windowWidth,
-    color : '#eee',
-    textAlign : 'center',
-    fontSize : 18,
-    fontWeight : 'bold',
-  },
-  bTickText : {
-    fontSize : 10,
-    color : '#870000',
-  },
-})
