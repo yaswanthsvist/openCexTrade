@@ -6,22 +6,25 @@ import wsBitfinex from './../services/webSocket';
 import MarketDepth from './ui/MarketDepth';
 import BarChart from './ui/BarChart';
 import CandleChart from './ui/CandleChart';
-
+import lodash from 'lodash';
 
 console.log("Trade Global.");
-
+const [CANDLE_CHART,MARKET_DEPTH,BAR_CAHRT]=[0,1,2];
 
 class Trade extends React.Component{
   constructor(props){
     super(props)
     this.channleHandler=this.channleHandler.bind(this);
     this.configureWebSockets=this.configureWebSockets.bind(this);
-    this.state={};
-    wsBitfinex.addListener(this.channleHandler);
+    this.onSelectGraph=this.onSelectGraph.bind(this);
+    this.state={graph:CANDLE_CHART};
+
+    console.log("Trade constructor");
     this.configureWebSockets(this.props);
   }
   channleHandler(msg){
-    const {bitfinex,dispatch}=this.props;
+    const {bitfinex,dispatch,screen}=this.props;
+    (!Array.isArray( msg ))?console.log(msg.event):null;
     if( !Array.isArray( msg ) && msg.event == "subscribed" ){
       console.log("Subscribed to",msg);
       if( msg.channel == "candles" ){
@@ -32,8 +35,12 @@ class Trade extends React.Component{
         dispatch( bitfinexActions.subscribedToBook( msg ) );
       }
     } else if( Array.isArray( msg ) ){
+      if( screen!="Trade" && ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
+        return;
+      }
       wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);
       const [chanId , data ] = msg;
+      console.log(msg);
       if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
         if( Array.isArray(data[0]) ){
           dispatch( bitfinexActions.initializeCandlesData( { data , chanId } ) )
@@ -49,6 +56,9 @@ class Trade extends React.Component{
     }
     this.configureWebSockets(nextProps);
   }
+  onSelectGraph(graph){
+    this.setState({graph});
+  }
   static navigationOptions={
     title:"Trade",
     drawerLabel: 'Home',
@@ -56,27 +66,25 @@ class Trade extends React.Component{
   }
   configureWebSockets(props){
     const {dispatch,bitfinex,exchange}=props;
-    dispatch({type:"BITFINEX_UNSUBSCRIBED_CANDLE"});
-    dispatch({type:"BITFINEX_UNSUBSCRIBED_BOOK"});
+    dispatch({type:"BITFINEX_UNSUBSCRIBE_CANDLE"});
+    dispatch({type:"BITFINEX_UNSUBSCRIBE_BOOK"});
     console.log(exchange);
     const booksChanid=bitfinex.books.chanId;
     const candlesChanid=bitfinex.candles.chanId;
     if(candlesChanid!=null){
-      wsBitfinex.send(
-        {
+      wsBitfinex.send({
          "event": "unsubscribe",
          "chanId": booksChanid
-        }
-      );
+        });
     }
     if(booksChanid!=null){
-      wsBitfinex.send(
-        {
+      wsBitfinex.send({
          "event": "unsubscribe",
          "chanId": booksChanid
-        }
-      );
+        });
     }
+    wsBitfinex.listners=[];
+    wsBitfinex.addListener(this.channleHandler);
     const {symbol1,symbol2}=exchange;
     wsBitfinex.isReady()
       .then((socket)=>{
@@ -99,15 +107,43 @@ class Trade extends React.Component{
   render(){
     const { presentableData , barsData }=this.props.bitfinex.books;
     const {data}=this.props.bitfinex.candles;
-//    console.log(this.props.nav);
+    const { graph  }=this.state;
+    let selectedGraph=null;
+    switch (graph) {
+      case MARKET_DEPTH:
+        selectedGraph=(<MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={10} data={presentableData}></MarketDepth>)
+        break;
+      case BAR_CAHRT:
+        selectedGraph=(<BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={10}  data={barsData}></BarChart>);
+        break;
+      case CANDLE_CHART:
+      default:
+        selectedGraph=(<CandleChart width={Dimensions.get('screen').width} maxCandles={30} height={Dimensions.get('screen').height/3} data={data}></CandleChart>);
+    }
     return(
       <ScrollView>
         <View>
-        {/*
-          <MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={2000} data={presentableData}></MarketDepth>
-          <BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={2000}  data={barsData}></BarChart>
-          <CandleChart width={Dimensions.get('screen').width} maxCandles={30} height={Dimensions.get('screen').height/3} data={data}></CandleChart>
-          */}
+        {
+          selectedGraph
+        }
+        <Button
+          onPress={()=>this.onSelectGraph(CANDLE_CHART)}
+          title="CANDLE"
+          color="#841584"
+          >
+          </Button>
+        <Button
+          onPress={()=>this.onSelectGraph(MARKET_DEPTH)}
+          title="MARKET_DEPTH"
+          color="#841584"
+          >
+          </Button>
+        <Button
+          onPress={()=>this.onSelectGraph(BAR_CAHRT)}
+          title="BAR_CHART"
+          color="#841584"
+          >
+        </Button>
         </View>
       </ScrollView>
     )
@@ -120,5 +156,6 @@ class Trade extends React.Component{
 const mapStateToProps = state => ({
   bitfinex:state.bitfinex,
   exchange:state.exchange,
+  screen:state.screen,
 });
 export default connect(mapStateToProps)(Trade);

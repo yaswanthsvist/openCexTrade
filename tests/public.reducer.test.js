@@ -101,7 +101,7 @@ describe( 'Bitfinex candle  web Socket test cases',()=>{
   })
   it('unsubscribe' , () => {
     const action = {
-     type:"BITFINEX_UNSUBSCRIBED_CANDLE",
+     type:"BITFINEX_UNSUBSCRIBE_CANDLE",
     }
     const initialState={
       "candles":{
@@ -485,7 +485,7 @@ describe( 'Bitfinex book  web Socket test cases',()=>{
   })
   it('unsubscribe' , () => {
     const action = {
-     type:"BITFINEX_UNSUBSCRIBED_BOOK",
+     type:"BITFINEX_UNSUBSCRIBE_BOOK",
     }
     const initialState={
       ...defbitfinexData,
