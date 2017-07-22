@@ -70,24 +70,11 @@ class Exchange extends React.Component{
         <ScrollView>
           <View style={{flex:1}}>
           <LineChart data={ohlcv} timeType={timeType}  width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={1} ></LineChart>
-          <Button
-              onPress={this.showInMinuites}
-              title="Minute"
-              color="#841584"
-              >
-              </Button>
-            <Button
-              onPress={this.showHourly}
-              title="Hours"
-              color="#841584"
-              >
-              </Button>
-            <Button
-              onPress={this.showlast100days}
-              title="Days"
-              color="#841584"
-              >
-            </Button>
+          <View style={{flexDirection:'row',marginTop:20,justifyContent:'space-around'}}>
+            <TouchableIcon name={'data1m'} onPress={()=>this.showInMinuites()} active={timeType} source='minutes' ></TouchableIcon>
+            <TouchableIcon name={'data1h'} onPress={()=>this.showHourly()} active={timeType} source='hours' ></TouchableIcon>
+            <TouchableIcon name={'data1d'} onPress={()=>this.showlast100days()} active={timeType} source='calendar' ></TouchableIcon>
+          </View>
             <MultiSlider
               selectedStyle={{
                 backgroundColor: 'gold',
