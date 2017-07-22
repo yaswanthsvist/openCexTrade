@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet,Dimensions, Text, View,ScrollView,StatusBar,Image } from 'react-native';
+import { StyleSheet,Dimensions, Text, View,ScrollView,Image } from 'react-native';
 import {ART} from "react-native";
 import * as scale from "d3-scale";
 import * as shape from "d3-shape";
