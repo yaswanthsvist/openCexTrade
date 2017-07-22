@@ -16,7 +16,7 @@ class Exchange extends React.Component{
     console.log("Exchange");
     super(props)
 
-    this.state={sampleRatio:1,minTime:0,maxTime:10};
+    this.state={sampleRatio:1,minTime:0,maxTime:100};
     this.showHourly=this.showHourly.bind(this);
     this.showInMinuites=this.showInMinuites.bind(this);
     this.showlast100days=this.showlast100days.bind(this);
@@ -117,7 +117,7 @@ class Exchange extends React.Component{
                 backgroundColor: 'red',
               }}
               min={0}
-              max={10}
+              max={100}
               touchDimensions={{
                 height: 80,
                 width: 80,

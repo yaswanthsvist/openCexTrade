@@ -170,7 +170,7 @@ class LineChart extends React.Component{
     const [TIMESTAMP,OPEN,CLOSE,HIGH,LOW,VOLUME]=[0,1,2,3,4,5];
     const values = data.map( item => item[TIMESTAMP] );
     const [hmin,hmax] = d3Array.extent( values );//height min
-    const avg=(hmax-hmin)/10;
+    const avg=(hmax-hmin)/100;
     const minFilter=hmin+avg*this.props.minTime;
     const maxFilter=hmin+avg*this.props.maxTime;
     let highData = data
