@@ -56,6 +56,10 @@
   dependencies:
     cross-spawn "^4.0.0"
 
+"@ptomasroos/react-native-multi-slider@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@ptomasroos/react-native-multi-slider/-/react-native-multi-slider-0.0.8.tgz#86eb8a1617cfe069aaa7d138136619fae434b04f"
+
 "@segment/loosely-validate-event@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@segment/loosely-validate-event/-/loosely-validate-event-1.1.2.tgz#d77840999e3f7e43e74b3b0d43391c1526f793b8"
@@ -4652,6 +4656,10 @@ react-native-drawer-layout@1.3.2:
   version "0.15.2"
   resolved "https://github.com/expo/react-native-maps/archive/v0.15.2.tar.gz#e6a022511fbb53d0db5029dc0b159dd194a3763f"
 
+react-native-multislider@^0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/react-native-multislider/-/react-native-multislider-0.0.14.tgz#dc7ca0f998105d5ca07476893894482bfe15eeee"
+
 react-native-qrcode@^0.2.3:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/react-native-qrcode/-/react-native-qrcode-0.2.3.tgz#cce06c5a8509c1f55a18d79053ace6fa0cedb376"
@@ -4701,6 +4709,14 @@ react-native-triangle@^0.0.7:
 react-native-vector-icons@4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-4.1.1.tgz#9ac75bde77d9243346668c51dca7756775428087"
+  dependencies:
+    lodash "^4.0.0"
+    prop-types "^15.5.8"
+    yargs "^6.3.0"
+
+react-native-vector-icons@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-4.2.0.tgz#0594b68debdd758dce4c565bf02e2d64d7004d82"
   dependencies:
     lodash "^4.0.0"
     prop-types "^15.5.8"

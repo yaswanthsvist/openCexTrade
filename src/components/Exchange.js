@@ -6,8 +6,11 @@ import * as exchangeActions from './../actions/exchange'
 import * as public_dataActions from './../actions/public_data'
 import {connect} from 'react-redux'
 import DropDown from './ui/DropDown';
+import TouchableIcon from './ui/TouchableIcon';
 import CandleChart from './ui/CandleChart';
 import wsBitfinex from './../services/webSocket';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
+
 class Exchange extends React.Component{
   constructor(props){
     console.log("Exchange");
@@ -67,7 +70,7 @@ class Exchange extends React.Component{
         <ScrollView>
           <View style={{flex:1}}>
           <LineChart data={ohlcv} timeType={timeType}  width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={1} ></LineChart>
-            <Button
+          <Button
               onPress={this.showInMinuites}
               title="Minute"
               color="#841584"
@@ -85,7 +88,53 @@ class Exchange extends React.Component{
               color="#841584"
               >
             </Button>
+            <MultiSlider
+              selectedStyle={{
+                backgroundColor: 'gold',
+              }}
+              unselectedStyle={{
+                backgroundColor: 'silver',
+              }}
+              values={[5,10]}
+              containerStyle={{
+                height:200,
+                marginTop:30,
+                marginBottom:20,
+              }}
+              container={{
+                height:80,
+              }}
+              enabledTwo={true}
+              markerContainer={{
+                height:80,
+              }}
+              markerStyle={{
+                height:30,
+                marginTop:10,
+                width:30,
+                borderRadius:30,
+              }}
+              pressedMarkerStyle={{
+                height:38,
+                width:38,
+                borderRadius:40,
+              }}
+              trackStyle={{
+                height:10,
+                backgroundColor: 'red',
+              }}
+              min={0}
+              max={20}
+              touchDimensions={{
+                height: 80,
+                width: 80,
+                borderRadius: 20,
+                slipDisplacement: 40,
+              }}
+              sliderLength={Dimensions.get('screen').width}
+            />
           </View>
+
         </ScrollView>
       </View>
     )

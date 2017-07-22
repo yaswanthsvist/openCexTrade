@@ -6,10 +6,12 @@ import wsBitfinex from './../services/webSocket';
 import MarketDepth from './ui/MarketDepth';
 import BarChart from './ui/BarChart';
 import CandleChart from './ui/CandleChart';
+import TouchableIcon from './ui/TouchableIcon';
+
 import lodash from 'lodash';
 
 console.log("Trade Global.");
-const [CANDLE_CHART,MARKET_DEPTH,BAR_CAHRT]=[0,1,2];
+const [CANDLE_CHART,MARKET_DEPTH,BAR_CHART]=[0,1,2];
 
 class Trade extends React.Component{
   constructor(props){
@@ -40,7 +42,6 @@ class Trade extends React.Component{
       }
       wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);
       const [chanId , data ] = msg;
-      console.log(msg);
       if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
         if( Array.isArray(data[0]) ){
           dispatch( bitfinexActions.initializeCandlesData( { data , chanId } ) )
@@ -93,14 +94,14 @@ class Trade extends React.Component{
                 "channel": "candles",
                 "key": `trade:1m:t${symbol1+symbol2}`
             });
-            console.log(wsBitfinex.send({
+            wsBitfinex.send({
               event: "subscribe",
               channel: "book",
               pair:`t${symbol1+symbol2}` ,
               prec: "P0",
               "freq": "F3",
               "len": 25
-            }));
+            });
       })
 
   }
@@ -113,7 +114,7 @@ class Trade extends React.Component{
       case MARKET_DEPTH:
         selectedGraph=(<MarketDepth width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={10} data={presentableData}></MarketDepth>)
         break;
-      case BAR_CAHRT:
+      case BAR_CHART:
         selectedGraph=(<BarChart width={Dimensions.get('screen').width} height={Dimensions.get('screen').height/3} throttle={10}  data={barsData}></BarChart>);
         break;
       case CANDLE_CHART:
@@ -123,27 +124,14 @@ class Trade extends React.Component{
     return(
       <ScrollView>
         <View>
-        {
-          selectedGraph
-        }
-        <Button
-          onPress={()=>this.onSelectGraph(CANDLE_CHART)}
-          title="CANDLE"
-          color="#841584"
-          >
-          </Button>
-        <Button
-          onPress={()=>this.onSelectGraph(MARKET_DEPTH)}
-          title="MARKET_DEPTH"
-          color="#841584"
-          >
-          </Button>
-        <Button
-          onPress={()=>this.onSelectGraph(BAR_CAHRT)}
-          title="BAR_CHART"
-          color="#841584"
-          >
-        </Button>
+          {
+            selectedGraph
+          }
+          <View style={{flexDirection:'row',marginTop:20,justifyContent:'space-around'}}>
+            <TouchableIcon name={CANDLE_CHART} onPress={()=>this.onSelectGraph(CANDLE_CHART)} active={graph} source='candles' ></TouchableIcon>
+            <TouchableIcon name={BAR_CHART} onPress={()=>this.onSelectGraph(BAR_CHART)} active={graph} source='bars' ></TouchableIcon>
+            <TouchableIcon name={MARKET_DEPTH} onPress={()=>this.onSelectGraph(MARKET_DEPTH)} active={graph} source='market' ></TouchableIcon>
+          </View>
         </View>
       </ScrollView>
     )
