@@ -15,10 +15,12 @@ class Exchange extends React.Component{
   constructor(props){
     console.log("Exchange");
     super(props)
-    this.state={sampleRatio:1};
+
+    this.state={sampleRatio:1,minTime:0,maxTime:10};
     this.showHourly=this.showHourly.bind(this);
     this.showInMinuites=this.showInMinuites.bind(this);
     this.showlast100days=this.showlast100days.bind(this);
+    this.onSliderValuesChange=this.onSliderValuesChange.bind(this);
     this.symbolPairs=[
       {key:'BTC:USD'},
       {key:'BTC:ETH'},
@@ -58,18 +60,21 @@ class Exchange extends React.Component{
     drawerLabel: 'Home',
     tabBarLabel: 'Exchange',
   }
+  onSliderValuesChange(x){
+    this.setState({minTime:x[0],maxTime:x[1]})
+  }
   render(){
     const tabBarHeight=60,statusBarHeight=20;
     const {timeType}=this.props.exchange;
+    let {minTime,maxTime}=this.state;
     const ohlcv=this.props.ohlcv;
-    //console.log(timeType);
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
     return(
       <View>
         <DropDown data={this.symbolPairs}></DropDown>
         <ScrollView>
           <View style={{flex:1}}>
-          <LineChart data={ohlcv} timeType={timeType}  width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={1} ></LineChart>
+          <LineChart data={ohlcv} timeType={timeType} minTime={minTime} maxTime={maxTime} width={Dimensions.get('screen').width} height={Dimensions.get('screen').height*2/5}  sampleRatio={1} ></LineChart>
           <View style={{flexDirection:'row',marginTop:20,justifyContent:'space-around'}}>
             <TouchableIcon name={'data1m'} onPress={()=>this.showInMinuites()} active={timeType} source='minutes' ></TouchableIcon>
             <TouchableIcon name={'data1h'} onPress={()=>this.showHourly()} active={timeType} source='hours' ></TouchableIcon>
@@ -79,10 +84,11 @@ class Exchange extends React.Component{
               selectedStyle={{
                 backgroundColor: 'gold',
               }}
+              onValuesChangeFinish={this.onSliderValuesChange}
               unselectedStyle={{
                 backgroundColor: 'silver',
               }}
-              values={[5,10]}
+              values={[minTime,maxTime]}
               containerStyle={{
                 height:200,
                 marginTop:30,
@@ -111,7 +117,7 @@ class Exchange extends React.Component{
                 backgroundColor: 'red',
               }}
               min={0}
-              max={20}
+              max={10}
               touchDimensions={{
                 height: 80,
                 width: 80,

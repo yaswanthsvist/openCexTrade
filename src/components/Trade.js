@@ -128,8 +128,8 @@ class Trade extends React.Component{
             selectedGraph
           }
           <View style={{flexDirection:'row',marginTop:20,justifyContent:'space-around'}}>
-            <TouchableIcon name={CANDLE_CHART} onPress={()=>this.onSelectGraph(CANDLE_CHART)} active={graph} source='candles' ></TouchableIcon>
             <TouchableIcon name={BAR_CHART} onPress={()=>this.onSelectGraph(BAR_CHART)} active={graph} source='bars' ></TouchableIcon>
+            <TouchableIcon name={CANDLE_CHART} onPress={()=>this.onSelectGraph(CANDLE_CHART)} active={graph} source='candles' ></TouchableIcon>
             <TouchableIcon name={MARKET_DEPTH} onPress={()=>this.onSelectGraph(MARKET_DEPTH)} active={graph} source='market' ></TouchableIcon>
           </View>
         </View>

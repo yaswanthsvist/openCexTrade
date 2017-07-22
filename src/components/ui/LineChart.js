@@ -166,16 +166,28 @@ class LineChart extends React.Component{
     if( this.state.data == null){
       return
     }
+    const {data}=this.state;
     const [TIMESTAMP,OPEN,CLOSE,HIGH,LOW,VOLUME]=[0,1,2,3,4,5];
-    let highData = this.state.data
+    const values = data.map( item => item[TIMESTAMP] );
+    const [hmin,hmax] = d3Array.extent( values );//height min
+    const avg=(hmax-hmin)/10;
+    const minFilter=hmin+avg*this.props.minTime;
+    const maxFilter=hmin+avg*this.props.maxTime;
+    let highData = data
+      .filter(candle=>(minFilter<=candle[TIMESTAMP])&&(candle[TIMESTAMP]<=maxFilter))
       .filter( ( candle , index ) => { return ( !( index%this.state.sampleRatio ) ) } )//sampling data here
       .map( candle => {
         return { time : new Date( candle[ TIMESTAMP ] ) , value : candle[ HIGH ] }
       });
-    let lowData = this.state.data
+      if(highData.length==0){
+        return
+      }
+    let lowData = data
+      .filter(candle=>(minFilter<=candle[TIMESTAMP])&&(candle[TIMESTAMP]<=maxFilter))
       .filter( ( candle , index ) => { return ( !( index%this.state.sampleRatio ) ) })//sampling data here
       .map( candle => ( { time : new Date( candle[ TIMESTAMP ] ) , value : candle[ LOW ] } ) );
-    let volumeData = this.state.data
+    let volumeData = data
+      .filter(candle=>(minFilter<=candle[TIMESTAMP])&&(candle[TIMESTAMP]<=maxFilter))
       .filter( (candle,index) => { return ( !( index%this.state.sampleRatio ) ) } )//sampling data here
       .map( candle => ( { time : new Date( candle[ TIMESTAMP ] ) , value : candle[ VOLUME ] } ) );// 5 is for volume
 
