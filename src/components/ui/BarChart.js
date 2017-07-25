@@ -173,6 +173,7 @@ class BarChart extends React.Component{
   }
 
 
+
   getlines(){
 //    console.log(this.state.data);
     if(this.state.data['asks']==undefined){
@@ -183,7 +184,7 @@ class BarChart extends React.Component{
 
     const {maxbars=16}=this.props;
 
-    let asksData=filterToBars(this.state.data['asks'],maxbars/2);
+    let asksData=filterToBars(this.state.data['asks'],maxbars/2); // max number of bars = half ask bars + half bids bars
     let bidsData=filterToBars(this.state.data['bids'],maxbars/2);
 
     const xvalues = [...asksData,...bidsData].map( item => item[0] );
