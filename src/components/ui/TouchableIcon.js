@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableHighlight , StyleSheet, Text , View , Image } from 'react-native';
-import icons from './../../styles'
+import {icons} from './../../styles'
 import lodash from 'lodash';
 export default class TouchableIcon extends React.Component{
   constructor(props){

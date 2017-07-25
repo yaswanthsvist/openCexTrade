@@ -10,6 +10,7 @@ import TouchableIcon from './ui/TouchableIcon';
 import CandleChart from './ui/CandleChart';
 import wsBitfinex from './../services/webSocket';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import {multiSliderStyles} from './../styles';
 
 class Exchange extends React.Component{
   constructor(props){
@@ -69,6 +70,7 @@ class Exchange extends React.Component{
     let {minTime,maxTime}=this.state;
     const ohlcv=this.props.ohlcv;
     const scrollStyle={height:Dimensions.get('window').height-statusBarHeight-tabBarHeight-(50)}
+    const {containerStyle,touchDimensions,markerStyle,trackStyle,pressedMarkerStyle}=multiSliderStyles;
     return(
       <View>
         <DropDown data={this.symbolPairs}></DropDown>
@@ -89,11 +91,7 @@ class Exchange extends React.Component{
                 backgroundColor: 'silver',
               }}
               values={[minTime,maxTime]}
-              containerStyle={{
-                height:200,
-                marginTop:30,
-                marginBottom:20,
-              }}
+              containerStyle={containerStyle}
               container={{
                 height:80,
               }}
@@ -101,30 +99,13 @@ class Exchange extends React.Component{
               markerContainer={{
                 height:80,
               }}
-              markerStyle={{
-                height:30,
-                marginTop:10,
-                width:30,
-                borderRadius:30,
-              }}
-              pressedMarkerStyle={{
-                height:38,
-                width:38,
-                borderRadius:40,
-              }}
-              trackStyle={{
-                height:10,
-                backgroundColor: 'red',
-              }}
+              markerStyle={markerStyle}
+              pressedMarkerStyle={pressedMarkerStyle}
+              trackStyle={trackStyle}
               min={0}
               max={100}
-              touchDimensions={{
-                height: 80,
-                width: 80,
-                borderRadius: 20,
-                slipDisplacement: 40,
-              }}
-              sliderLength={Dimensions.get('screen').width}
+              touchDimensions={touchDimensions}
+              sliderLength={Dimensions.get('screen').width-60}
             />
           </View>
 
