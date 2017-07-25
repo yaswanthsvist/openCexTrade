@@ -14,19 +14,16 @@ class Deposit extends React.Component{
   }
   render(){
     return(
-    <View style={{flex:3,alignItems:"center"}}>
+    <View style={{flex:3,alignItems:"center",backgroundColor:'white'}}>
       <View style={{flex:3,alignItems:"center"}}>
-        <Text>
+        <Text style={{fontSize:15,fontFamily:'serif',textAlign:'center',fontWeight:'600'}}>
         {`
 
 
 
-          Deposit to below Bitcoin Address
+Deposit to below Bitcoin Address
 
-          3GMeigk8BfCccvLLju8hKej3oZMJxsMF2F
-
-          https://coinmarketcap.com/
-
+3GMeigk8BfCccvLLju8hKej3oZMJxsMF2F
         `}
         </Text>
       </View>
@@ -34,7 +31,7 @@ class Deposit extends React.Component{
         <QRCode
           value="3GMeigk8BfCccvLLju8hKej3oZMJxsMF2F"
           size={150}
-          bgColor='purple'
+          bgColor='rgb( 20, 20, 20)'
           fgColor='white'/>
       </View>
     </View>
