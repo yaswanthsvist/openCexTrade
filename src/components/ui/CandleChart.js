@@ -6,6 +6,7 @@ import * as shape from "d3-shape";
 import * as d3Array from "d3-array";
 const d3 = {scale,shape};
 const {Shape,Surface,Group} =  ART;
+const [TIMESTAMP,OPEN,CLOSE,HIGH,LOW]=[0,1,2,3,4];
 
 /**
  * Create an x-scale.
@@ -35,6 +36,18 @@ function createScaleY(minY, maxY, height) {
 
 }
 
+/**
+ * Create d attribute for an SVG path or ART's Shape.
+ * @param {array} lineData consists array of {timestamp,value}.
+ * @param {number} height height of shape defaults to device Width.
+ * @param {number} width width of shape defaults to device Width.
+ * @param {number} scale to scale y axis points.
+ */
+
+const getTimeFormat=(time)=>{
+  const d=new Date(time);
+  return `${(d.getHours()>9?'':'0')+d.getHours()}:${(d.getMinutes()>9?'':'0')+d.getMinutes()}\n${d.getDate()}`
+}
 
 
 const generateAxis = ( width , height , lines = 5 ) => {
@@ -95,7 +108,6 @@ const filterToBars=(data,noOfBars) => {
   let xvalues=data.map(x=>x[0]);
   let min=Math.min.apply(null,xvalues);
   let max=Math.max.apply(null,xvalues);
-  console.log(min,max);
   gap=(max-min)/(noOfBars-1);
   filteredArray=[];
   for(pres=min;pres<= (max);pres=pres+gap){
@@ -128,16 +140,16 @@ class CandleChart extends React.Component{
     this.generateTicks = this.generateTicks.bind( this );
   }
   generateTicks(data){
-    const values = data.map( item => item[0] );
-    const timeLine = data.map( item => item[1] );
-    const hmin = Math.min( ...values );//height min
-    const hmax = Math.max( ...values );//height max
-    const gapBtwHLines = ( hmax - hmin )/ this.baseTicks.length; //gap between horizontal Lines
+    const values = data.map( item => item[1] );
+    const timeLine = data.map( item => item[0] );
+    const ymin = Math.min( ...values );//height min
+    const ymax = Math.max( ...values );//height max
+    const gapBtwHLines = ( ymax - ymin )/ this.vertiaclTicks.length; //gap between horizontal Lines
     const tmin = Math.min( ...timeLine );
     const tmax = Math.max( ...timeLine );
     const gapBtwVLines = ( tmax - tmin )/ this.baseTicks.length; //time gap between Vertical Lines
-    this.baseTicks=this.vertiaclTicks.map((tick,i)=>(hmin+gapBtwHLines*i).toPrecision(4));
-    this.vertiaclTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*(i+1)).toPrecision(6));
+    this.baseTicks=this.baseTicks.map((tick,i)=>(tmin+gapBtwVLines*i));
+    this.vertiaclTicks=this.vertiaclTicks.map((tick,i)=>(ymin+gapBtwHLines*(i+1)).toPrecision(6));
   }
   getPath({
     xvalues,
@@ -173,10 +185,11 @@ class CandleChart extends React.Component{
   getlines(){
 
     const {data,maxCandles=30}=this.props;
-    const [TIMESTAMP,OPEN,CLOSE,HIGH,LOW]=[0,1,2,3,4];
+
     if(data.length==0){
       return
     }
+
     const whole = [
       ...data.map( x => [ x[ TIMESTAMP ] , x[ HIGH ] ] ) ,
       ...data.map( x => [ x[ TIMESTAMP ] , x[ LOW] ] )
@@ -274,7 +287,7 @@ class CandleChart extends React.Component{
         </Surface>
         <View style={{height:60,width:width,flexDirection:'row'}}>
           {
-            baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{tick}</Text>)
+            baseTicks.map((tick,i)=><Text style={[styles.bTickText,{width:textWidth}]} key={i+'bTick'} >{getTimeFormat(tick)}</Text>)
           }
         </View>
         <View style={{position : 'absolute',right:-1,width:60,height:this.width,flexDirection:'column'}}>
