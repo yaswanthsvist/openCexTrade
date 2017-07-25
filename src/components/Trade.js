@@ -37,7 +37,7 @@ class Trade extends React.Component{
         dispatch( bitfinexActions.subscribedToBook( msg ) );
       }
     } else if( Array.isArray( msg ) ){
-      if( screen!="Trade" && ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
+      if( (screen!="Trade" && screen!="Bids") && ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
         return;
       }
       wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);
