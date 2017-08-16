@@ -12,7 +12,7 @@ import lodash from 'lodash';
 
 console.log("Trade Global.");
 const [CANDLE_CHART,MARKET_DEPTH,BAR_CHART]=[0,1,2];
-
+const [BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE, DAILY_CHANGE_PERC, LAST_PRICE, VOLUME, HIGH, LOW]=[0,1,2,3,4,5,6,7,8,9];
 class Trade extends React.Component{
   constructor(props){
     super(props)
@@ -142,6 +142,9 @@ class Trade extends React.Component{
     return(
       <ScrollView>
         <View>
+          <View>
+            <Text>{`Last Price:${tickerData[LAST_PRICE]}\nDaily Change: ${tickerData[DAILY_CHANGE]}\n24h Volume: ${tickerData[VOLUME]}\nHigh: ${tickerData[HIGH]}\nLow: ${tickerData[LOW]}`}</Text>
+          </View>
           {
             selectedGraph
           }
