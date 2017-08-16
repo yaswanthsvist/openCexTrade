@@ -37,18 +37,24 @@ class Trade extends React.Component{
         dispatch( bitfinexActions.subscribedToBook( msg ) );
       }
     } else if( Array.isArray( msg ) ){
-      if( (screen!="Trade" && screen!="Bids") && ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
+      if( ( ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
         return;
       }
-      wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);
+      wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);//handle bars and market depth charts
       const [chanId , data ] = msg;
       if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
-        if( Array.isArray(data[0]) ){
+        if( Array.isArray(data[0]) ){  //array of candles is meant for initializing candle data, if its object then its update candle
           dispatch( bitfinexActions.initializeCandlesData( { data , chanId } ) )
         }else{
           dispatch (bitfinexActions.updateCandlesData( { data , chanId } ) );
         }
       }
+    }
+  }
+  shouldComponentUpdate(){
+    const {screen}=this.props;
+    if(screen!="Trade" && screen!="Bids"){
+      return false;
     }
   }
   componentWillReceiveProps(nextProps) {
