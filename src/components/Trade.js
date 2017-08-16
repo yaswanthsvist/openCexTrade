@@ -52,6 +52,9 @@ class Trade extends React.Component{
           dispatch (bitfinexActions.updateCandlesData( { data , chanId } ) );
         }
       }
+      if( Array.isArray( data ) && chanId == bitfinex.ticker.chanId ){
+          dispatch (bitfinexActions.updateTickerData( { data , chanId } ) );
+      }
     }
   }
   shouldComponentUpdate(){
@@ -122,6 +125,8 @@ class Trade extends React.Component{
   render(){
     const { presentableData , barsData }=this.props.bitfinex.books;
     const {data}=this.props.bitfinex.candles;
+    const tickerData=this.props.bitfinex.ticker.data;
+    console.log(tickerData);
     const { graph  }=this.state;
     let selectedGraph=null;
     switch (graph) {

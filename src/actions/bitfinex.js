@@ -12,6 +12,13 @@ export const updateCandlesData=({data,chanId})=>{
     data,
   }
 }
+export const updateTickerData=({data,chanId})=>{
+  return {
+    type:"BITFINEX_UPDATE_TICKER",
+    chanId,
+    data,
+  }
+}
 export const subscribeToCandles=({key,chanId})=>{
   return {
     type:"BITFINEX_SUBSCRIBED_CANDLE",
