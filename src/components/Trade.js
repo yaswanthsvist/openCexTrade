@@ -26,7 +26,7 @@ class Trade extends React.Component{
   }
   channleHandler(msg){
     const {bitfinex,dispatch,screen}=this.props;
-    (!Array.isArray( msg ))?console.log(msg.event):null;
+    (!Array.isArray( msg ))?console.log(msg):null;
     if( !Array.isArray( msg ) && msg.event == "subscribed" ){
       console.log("Subscribed to",msg);
       if( msg.channel == "candles" ){
@@ -40,9 +40,7 @@ class Trade extends React.Component{
         dispatch( bitfinexActions.subscribedToTicker( msg ) );
       }
     } else if( Array.isArray( msg ) ){
-      if( ( ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
-        return;
-      }
+    //  console.log(msg);
       wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);//handle bars and market depth charts
       const [chanId , data ] = msg;
       if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
@@ -57,11 +55,13 @@ class Trade extends React.Component{
       }
     }
   }
-  shouldComponentUpdate(){
-    const {screen}=this.props;
-    if(screen!="Trade" && screen!="Bids"){
-      return false;
+  shouldComponentUpdate(nextProps, nextState){
+
+    const {screen}=nextProps;
+    if(screen=="Trade" || screen=="Bids"){
+      return true;
     }
+    return false;
   }
   componentWillReceiveProps(nextProps) {
     if(nextProps.exchange.symbol1==this.props.exchange.symbol1&&nextProps.exchange.symbol2==this.props.exchange.symbol2){
@@ -117,7 +117,7 @@ class Trade extends React.Component{
             wsBitfinex.send({
                 "event": "subscribe",
                 "channel": "ticker",
-                "key": `t${symbol1+symbol2}`
+                "symbol": `t${symbol1+symbol2}`
             });
       })
 
@@ -126,7 +126,6 @@ class Trade extends React.Component{
     const { presentableData , barsData }=this.props.bitfinex.books;
     const {data}=this.props.bitfinex.candles;
     const tickerData=this.props.bitfinex.ticker.data;
-    console.log(tickerData);
     const { graph  }=this.state;
     let selectedGraph=null;
     switch (graph) {
