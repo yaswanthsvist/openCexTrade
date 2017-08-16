@@ -25,6 +25,12 @@ export const subscribedToBook=(evt)=>{
     ...evt,
   }
 }
+export const subscribedToTicker=(evt)=>{
+  return {
+    type:"BITFINEX_SUBSCRIBED_TICKER",
+    ...evt,
+  }
+}
 export const updateBooksData=({presentableData,barsData,chanId})=>{
   return {
     type:"BITFINEX_UPDATE_BOOK",
