@@ -36,6 +36,9 @@ class Trade extends React.Component{
       if( msg.channel == "book" ){
         dispatch( bitfinexActions.subscribedToBook( msg ) );
       }
+      if( msg.channel == "ticker" ){
+        dispatch( bitfinexActions.subscribedToTicker( msg ) );
+      }
     } else if( Array.isArray( msg ) ){
       if( ( ( lodash.isEmpty(bitfinex.books.presentableData) !=true  && bitfinex.candles.data.length !=0 ) ){
         return;
@@ -43,7 +46,7 @@ class Trade extends React.Component{
       wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);//handle bars and market depth charts
       const [chanId , data ] = msg;
       if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
-        if( Array.isArray(data[0]) ){  //array of candles is meant for initializing candle data, if its object then its update candle
+        if( Array.isArray(data[0]) ){  //array of candles(objects) is meant for initializing candle chart, if its object then add candle
           dispatch( bitfinexActions.initializeCandlesData( { data , chanId } ) )
         }else{
           dispatch (bitfinexActions.updateCandlesData( { data , chanId } ) );
@@ -107,6 +110,11 @@ class Trade extends React.Component{
               prec: "P0",
               "freq": "F3",
               "len": 25
+            });
+            wsBitfinex.send({
+                "event": "subscribe",
+                "channel": "ticker",
+                "key": `t${symbol1+symbol2}`
             });
       })
 
