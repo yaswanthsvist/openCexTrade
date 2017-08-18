@@ -32,21 +32,29 @@ class Bids extends React.Component{
     return(
       <View style={{flex:1,flexDirection:'row'}}>
         <View style={{flex:2}}>
+          <View style={{flexDirection:'row'}} key={'asks'} >
+            <View style={{flex:2,borderWidth:1}}><Text>{"Volume"}</Text></View>
+            <View style={{flex:3,backgroundColor:'rgba(0, 173, 239,0.3)',borderWidth:1}}><Text>{"SELL AT"}</Text></View>
+          </View>
           {
             asks.filter((item,i)=>(i<=25)).map((item,i)=>(
-              <View style={{flex:1,flexDirection:'row'}} key={i+'asks'} >
-                <View style={{flex:2,borderWidth:1}}><Text>{item[1]}</Text></View>
+              <View style={{flexDirection:'row'}} key={i+'asks'} >
+                <View style={{flex:2,borderWidth:1}}><Text>{item[1].toFixed(2)}</Text></View>
                 <View style={{flex:3,backgroundColor:'rgba(0, 173, 239,0.3)',borderWidth:1}}><Text>{item[0]}</Text></View>
               </View>)
             )
           }
         </View>
         <View style={{flex:2}}>
+          <View style={{flexDirection:'row'}} key={'bids'} >
+            <View style={{flex:3,backgroundColor:'rgba(31, 212, 48,0.3)',borderWidth:1}}><Text>{"BUY AT"}</Text></View>
+            <View style={{flex:2,borderWidth:1}}><Text>{"Volume"}</Text></View>
+          </View>
           {
             bids.filter((item,i)=>(i<=25)).map((item,i)=>(
-              <View style={{flex:1,flexDirection:'row'}} key={i+'bids'} >
+              <View style={{flexDirection:'row'}} key={i+'bids'} >
                 <View style={{flex:3,backgroundColor:'rgba(31, 212, 48,0.3)',borderWidth:1}}><Text>{item[0]}</Text></View>
-                <View style={{flex:2,borderWidth:1}}><Text>{item[1]}</Text></View>
+                <View style={{flex:2,borderWidth:1}}><Text>{item[1].toFixed(3)}</Text></View>
               </View>)
             )
           }
