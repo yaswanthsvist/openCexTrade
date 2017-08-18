@@ -23,6 +23,11 @@ const defbitfinexData={
     prec: "P0",
     "freq": "F0",
     "len": 50,
+  },
+  ticker:{
+    symbol:"tBTCUSD",
+    chanId:null,
+    data:[],
   }
 
 };
