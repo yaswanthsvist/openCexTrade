@@ -1,57 +1,322 @@
-import exchange from './../src/reducers/account';
+import account from './../src/reducers/account';
 import expect from 'expect'
 import deepFreeze from 'deep-freeze';
 const expectedDefaultState={
-  symbol1:"BTC",
-  symbol2:"USD",
-  timeType:"data1h",
-  fromTime:"",
-  toTime:"",
+  balance:{
+    "USD":1200,
+    "BTC":0,
+    "ETH":0,
+  },
+  orders:[],
+  transactions:[],
 }
-describe("exchange",()=>{
-  it('set symbols', () => {
+describe("balance",()=>{
+  it('UPDATE_BALANCE', () => {
     let action={
-      "type":"SET_SYMBOLS",
-      'symbol1':'ETH',
-      'symbol2':'USD'
+      "type":"UPDATE_BALANCE",
+      'USD':1235,
+      'BTC':0.1,
+      "ETH" : 1,
     }
-    let initialState=exchange(undefined,{type:""});
+    let initialState=account(undefined,{type:""});
     deepFreeze(initialState);
-    let newState=exchange(initialState,action);
-    expectedNewState={...expectedDefaultState,symbol1:"ETH",symbol2:"USD"}
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState,balance:{USD:1235,BTC:0.1,ETH:1}};
     expect(newState).toEqual(expectedNewState);
   });
-  it('set timeType', () => {
+  it('RESET_BALANCE', () => {
     let action={
-      "type":"SET_TIME_TYPE",
-      'timeType':'data1d',
+      "type":"RESET_BALANCE",
     }
-    let initialState=exchange(undefined,{type:""});
+    let initialState=account(undefined,{type:""});
     deepFreeze(initialState);
-    let newState=exchange(initialState,action);
-    expectedNewState={...expectedDefaultState,timeType:"data1d"}
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState,balance:{USD:1200,BTC:0,ETH:0}}
     expect(newState).toEqual(expectedNewState);
   });
-  it('set fromTime', () => {
-    const fromTime=(new Date()).getTime();
+});
+describe("orders",()=>{
+  it('CANCEL_ALL_ORDERS', () => {
     let action={
-      "type":"SET_FROM_TIME",
-      fromTime,
+      "type":"CANCEL_ALL_ORDERS",
     }
-    let initialState=exchange(undefined,{type:""});
+    let initialState=account(undefined,{type:""});
+    initialState.orders=[{}];
     deepFreeze(initialState);
-    let newState=exchange(initialState,action);
-    expect(newState.fromTime).toEqual(fromTime);
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState};
+    expect(newState).toEqual(expectedNewState);
   });
-  it('set toTime', () => {
-    const toTime=(new Date()).getTime();
+  it('CANCEL_ORDER begining', () => {
     let action={
-      "type":"SET_TO_TIME",
-      toTime,
+      "type":"CANCEL_ALL_ORDERS",
+      index:0
     }
-    let initialState=exchange(undefined,{type:""});
+    let initialState={...expectedDefaultState,
+      orders:[
+      {
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322245,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322285,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+    ]
+    };
+    let expectedNewState={...expectedDefaultState,
+      orders:[
+      {
+        id:12322245,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322285,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+    ]
+    };
+
     deepFreeze(initialState);
-    let newState=exchange(initialState,action);
-    expect(newState.toTime).toEqual(toTime);
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState};
+    expect(newState).toEqual(expectedNewState);
   });
+  it('CANCEL_ORDER middle', () => {
+    let action={
+      "type":"CANCEL_ALL_ORDERS",
+      index:1
+    }
+    let initialState={...expectedDefaultState,
+      orders:[
+      {
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322245,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322285,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+    ]
+    };
+    let expectedNewState={...expectedDefaultState,
+      orders:[
+        {
+          id:12322222,
+          type : "bid",
+          at : 4000,
+          for : 500,//usd dollars
+          serviceFee :1,//0.2% of 500
+          volume : 0.125,//BTC
+          from: "USD",
+          to : "BTC",
+        },
+      {
+        id:12322285,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+    ]
+    };
+
+    deepFreeze(initialState);
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState};
+    expect(newState).toEqual(expectedNewState);
+  });
+  it('CANCEL_ORDER end', () => {
+    let action={
+      "type":"CANCEL_ALL_ORDERS",
+      index:2
+    }
+    let initialState={...expectedDefaultState,
+      orders:[
+      {
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322245,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+      {
+        id:12322285,
+        type : "bid",
+        at : 4000,
+        for : 1000,//usd dollars
+        serviceFee :2,//0.2% of 500
+        volume : 0.25,//BTC
+        from: "USD",
+        to : "BTC",
+      },
+    ]
+    };
+    let expectedNewState={...expectedDefaultState,
+      orders:[
+        {
+          id:12322222,
+          type : "bid",
+          at : 4000,
+          for : 500,//usd dollars
+          serviceFee :1,//0.2% of 500
+          volume : 0.125,//BTC
+          from: "USD",
+          to : "BTC",
+        },
+        {
+          id:12322245,
+          type : "bid",
+          at : 4000,
+          for : 1000,//usd dollars
+          serviceFee :2,//0.2% of 500
+          volume : 0.25,//BTC
+          from: "USD",
+          to : "BTC",
+        },
+    ]
+    };
+
+    deepFreeze(initialState);
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState};
+    expect(newState).toEqual(expectedNewState);
+  });
+  it('ADD_ORDER', () => {
+    let action={
+      "type":"ADD_ORDER",
+      order : {
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      }
+    }
+    let initialState=account(undefined,{type:""});
+    deepFreeze(initialState);
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState,
+      orders:[{
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      }]
+    };
+    expect(newState).toEqual(expectedNewState);
+  });
+  it('UPDATE_ORDER', () => {
+    let action={
+      "type":"UPDATE_ORDER",
+      index:0,
+      order : {
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      }
+    }
+    let initialState=account(undefined,{type:""});
+    deepFreeze(initialState);
+    let newState=account(initialState,action);
+    expectedNewState={...expectedDefaultState,
+      orders:[{
+        id:12322222,
+        type : "bid",
+        at : 4000,
+        for : 500,//usd dollars
+        serviceFee :1,//0.2% of 500
+        volume : 0.125,//BTC
+        from: "USD",
+        to : "BTC",
+      }]
+    };
+    console.log(newState);
+    expect(newState).toEqual(expectedNewState);
+  });
+
 });
