@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as bitfinexActions from './../actions/bitfinex';
-import { StyleSheet,Dimensions, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
+import {TextInput, StyleSheet,Dimensions, Text,Button, View,ScrollView,StatusBar,Image } from 'react-native';
 import wsBitfinex from './../services/webSocket';
 import MarketDepth from './ui/MarketDepth';
 import BarChart from './ui/BarChart';
@@ -10,7 +10,6 @@ import TouchableIcon from './ui/TouchableIcon';
 
 import lodash from 'lodash';
 
-console.log("Trade Global.");
 const [CANDLE_CHART,MARKET_DEPTH,BAR_CHART]=[0,1,2];
 const [BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE, DAILY_CHANGE_PERC, LAST_PRICE, VOLUME, HIGH, LOW]=[0,1,2,3,4,5,6,7,8,9];
 class Trade extends React.Component{
@@ -21,7 +20,6 @@ class Trade extends React.Component{
     this.onSelectGraph=this.onSelectGraph.bind(this);
     this.state={graph:CANDLE_CHART};
 
-    console.log("Trade constructor");
     this.configureWebSockets(this.props);
   }
   channleHandler(msg){
@@ -40,7 +38,6 @@ class Trade extends React.Component{
         dispatch( bitfinexActions.subscribedToTicker( msg ) );
       }
     } else if( Array.isArray( msg ) ){
-    //  console.log(msg);
       wsBitfinex.handleBook(msg , dispatch , bitfinex.books.chanId , bitfinexActions);//handle bars and market depth charts
       const [chanId , data ] = msg;
       if( Array.isArray( data ) && chanId == bitfinex.candles.chanId ){
@@ -153,6 +150,39 @@ class Trade extends React.Component{
             <TouchableIcon name={CANDLE_CHART} onPress={()=>this.onSelectGraph(CANDLE_CHART)} active={graph} source='candles' ></TouchableIcon>
             <TouchableIcon name={MARKET_DEPTH} onPress={()=>this.onSelectGraph(MARKET_DEPTH)} active={graph} source='market' ></TouchableIcon>
           </View>
+          <View style={{flexDirection:'row',marginTop:10}}>
+            <View style={{flexDirection:'column',marginTop:10}}>
+              <View>
+                <Text>{"USD to Spend"}</Text>
+              </View>
+              <View>
+                <TextInput placeholder='Price'></TextInput>
+                <TextInput placeholder='USD'></TextInput>
+              </View>
+              <View>
+                <Button
+                  onPress={() => {}}
+                  title="BUY/BID"
+                />
+              </View>
+            </View>
+            <View style={{flexDirection:'column',marginTop:10}}>
+              <View>
+                <Text>{"BTC to Sell"}</Text>
+              </View>
+              <View>
+                <TextInput placeholder='Price'></TextInput>
+                <TextInput placeholder='BTC'></TextInput>
+              </View>
+              <View>
+                <Button
+                  onPress={() => {}}
+                  title="SELL/ASK"
+                />
+              </View>
+            </View>
+          </View>
+
         </View>
       </ScrollView>
     )
