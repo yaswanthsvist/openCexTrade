@@ -49,7 +49,7 @@ describe("orders",()=>{
   });
   it('CANCEL_ORDER begining', () => {
     let action={
-      "type":"CANCEL_ALL_ORDERS",
+      "type":"CANCEL_ORDER",
       index:0
     }
     let initialState={...expectedDefaultState,
@@ -113,12 +113,11 @@ describe("orders",()=>{
 
     deepFreeze(initialState);
     let newState=account(initialState,action);
-    expectedNewState={...expectedDefaultState};
     expect(newState).toEqual(expectedNewState);
   });
   it('CANCEL_ORDER middle', () => {
     let action={
-      "type":"CANCEL_ALL_ORDERS",
+      "type":"CANCEL_ORDER",
       index:1
     }
     let initialState={...expectedDefaultState,
@@ -182,12 +181,11 @@ describe("orders",()=>{
 
     deepFreeze(initialState);
     let newState=account(initialState,action);
-    expectedNewState={...expectedDefaultState};
     expect(newState).toEqual(expectedNewState);
   });
   it('CANCEL_ORDER end', () => {
     let action={
-      "type":"CANCEL_ALL_ORDERS",
+      "type":"CANCEL_ORDER",
       index:2
     }
     let initialState={...expectedDefaultState,
@@ -251,7 +249,6 @@ describe("orders",()=>{
 
     deepFreeze(initialState);
     let newState=account(initialState,action);
-    expectedNewState={...expectedDefaultState};
     expect(newState).toEqual(expectedNewState);
   });
   it('ADD_ORDER', () => {
@@ -315,7 +312,6 @@ describe("orders",()=>{
         to : "BTC",
       }]
     };
-    console.log(newState);
     expect(newState).toEqual(expectedNewState);
   });
 });
