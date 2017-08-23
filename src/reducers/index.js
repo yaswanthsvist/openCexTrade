@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import nav from './navReducer';
 import exchange from './exchange';
 import auth,{password} from './auth';
+import account from './account';
 import public_data,{bitfinex} from './public_data';
 
 const screen=(state="Exchange",action)=>{
@@ -19,6 +20,7 @@ rootReducer=combineReducers({
   nav,
   exchange,
   auth,
+  account,
   password,
   public_data,
   bitfinex,
