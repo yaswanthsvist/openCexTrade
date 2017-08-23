@@ -12,6 +12,50 @@ import lodash from 'lodash';
 
 const [CANDLE_CHART,MARKET_DEPTH,BAR_CHART]=[0,1,2];
 const [BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE, DAILY_CHANGE_PERC, LAST_PRICE, VOLUME, HIGH, LOW]=[0,1,2,3,4,5,6,7,8,9];
+class CreateOrder extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={};
+  }
+  render(){
+    const {USD,BTC}=this.props.balance;
+    return(
+      <View style={{flexDirection:'row',marginTop:10}}>
+        <View style={{flex:1,flexDirection:'column',marginTop:10,marginRight:3}}>
+          <View>
+            <Text>{`USD you can Spend: $${USD}`}</Text>
+          </View>
+          <View>
+            <TextInput style={{padding:10}} placeholder='Price'></TextInput>
+            <TextInput style={{padding:10}} placeholder='USD'></TextInput>
+          </View>
+          <View>
+            <Button
+              onPress={(text) => {}}
+              title="BUY/BID"
+            />
+          </View>
+        </View>
+        <View style={{flex:1,flexDirection:'column',marginTop:10,marginLeft:3}}>
+          <View>
+            <Text>{`BTC you can Sell: ${BTC}`}</Text>
+          </View>
+          <View>
+            <TextInput style={{padding:10}} placeholder='Price'></TextInput>
+            <TextInput style={{padding:10}} placeholder='BTC'></TextInput>
+          </View>
+          <View>
+            <Button
+              onPress={() => {}}
+              title="SELL/ASK"
+            />
+          </View>
+        </View>
+      </View>
+    )
+  }
+}
+
 class Trade extends React.Component{
   constructor(props){
     super(props)
@@ -124,6 +168,7 @@ class Trade extends React.Component{
     const {data}=this.props.bitfinex.candles;
     const tickerData=this.props.bitfinex.ticker.data;
     const { graph  }=this.state;
+    const {balance}=this.props.account;
     let selectedGraph=null;
     switch (graph) {
       case MARKET_DEPTH:
@@ -150,39 +195,7 @@ class Trade extends React.Component{
             <TouchableIcon name={CANDLE_CHART} onPress={()=>this.onSelectGraph(CANDLE_CHART)} active={graph} source='candles' ></TouchableIcon>
             <TouchableIcon name={MARKET_DEPTH} onPress={()=>this.onSelectGraph(MARKET_DEPTH)} active={graph} source='market' ></TouchableIcon>
           </View>
-          <View style={{flexDirection:'row',marginTop:10}}>
-            <View style={{flexDirection:'column',marginTop:10}}>
-              <View>
-                <Text>{"USD to Spend"}</Text>
-              </View>
-              <View>
-                <TextInput placeholder='Price'></TextInput>
-                <TextInput placeholder='USD'></TextInput>
-              </View>
-              <View>
-                <Button
-                  onPress={() => {}}
-                  title="BUY/BID"
-                />
-              </View>
-            </View>
-            <View style={{flexDirection:'column',marginTop:10}}>
-              <View>
-                <Text>{"BTC to Sell"}</Text>
-              </View>
-              <View>
-                <TextInput placeholder='Price'></TextInput>
-                <TextInput placeholder='BTC'></TextInput>
-              </View>
-              <View>
-                <Button
-                  onPress={() => {}}
-                  title="SELL/ASK"
-                />
-              </View>
-            </View>
-          </View>
-
+          <CreateOrder balance={balance}></CreateOrder>
         </View>
       </ScrollView>
     )
@@ -195,6 +208,7 @@ class Trade extends React.Component{
 const mapStateToProps = state => ({
   bitfinex:state.bitfinex,
   exchange:state.exchange,
+  account:state.account,
   screen:state.screen,
 });
 export default connect(mapStateToProps)(Trade);
